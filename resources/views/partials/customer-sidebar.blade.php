@@ -8,13 +8,13 @@
 
     <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
         <!-- Brand Logo -->
-        <a href="#"
-            class="d-flex align-items-center pb-3 mb-mt-2 me-md-auto text-white text-decoration-none">
-            <span class="fs-5 d-none mt-3 d-sm-inline">
-                <i class="fas fa-bicycle me-2"></i> MyBikeStore
+        <a href="{{ route('customer.dashboard') }}"
+            class="d-flex align-items-center pb-3 mb-md-0 mt-3 me-md-auto text-white text-decoration-none">
+            <span class="fs-5 d-none d-sm-inline">
+                <i class="fas fa-motorcycle me-2"></i> MyBikeStore
             </span>
             <span class="fs-5 d-inline d-sm-none">
-                <i class="fas fa-bicycle"></i>
+                <i class="fas fa-motorcycle"></i>
             </span>
         </a>
 
@@ -23,8 +23,7 @@
             id="menu">
             <!-- Dashboard -->
             <li class="nav-item w-100">
-                <a href="{{ route('customer.dashboard') }}"
-                    class="nav-link align-middle mt-2 px-0 text-white">
+                <a href="{{ route('customer.dashboard') }}" class="nav-link align-middle mt-2 px-0 text-white">
                     <i class="fs-4 fas fa-tachometer-alt"></i>
                     <span class="ms-1 d-none d-sm-inline">Dashboard</span>
                 </a>

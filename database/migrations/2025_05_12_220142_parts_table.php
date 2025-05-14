@@ -19,7 +19,7 @@ return new class extends Migration
         $table->decimal('price', 10, 2);
         $table->integer('stock')->default(0);
         $table->string('image')->nullable();
-        $table->json('specifications')->nullable(); // For additional specs
+        $table->text('specifications')->nullable(); //
         $table->boolean('is_active')->default(true);
         $table->timestamps();
     });

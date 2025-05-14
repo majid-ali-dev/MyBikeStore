@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
+
 use Illuminate\Support\Facades\Route;
 
 
@@ -15,15 +16,29 @@ Route::post('registerSave', [UserController::class, 'register'])->name('register
 Route::match(['get', 'post'], 'logout', [UserController::class, 'logout'])->name('logout');
 
 
-// Customer Routes
-Route::middleware(['auth', 'customer:customer'])->prefix('customer')->group(function () {
-    Route::get('/dashboard', [CustomerController::class, 'index'])->name('customer.dashboard');
-
-});
-
 // Admin Routes
 Route::middleware(['auth', 'admin:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+
+    // Categories routes
+    Route::post('/categories', [AdminController::class, 'storeCategory'])->name('admin.categories.store');
+    Route::get('/categories/create', [AdminController::class, 'createCategory'])->name('admin.categories.create');
+
+    // Parts routes
+    Route::get('/categories/{category}/parts', [AdminController::class, 'categoryParts'])->name('admin.categories.parts');
+    Route::get('/categories', [AdminController::class, 'categoriesList'])->name('admin.categories.list');
+    Route::get('/categories/{category}/parts/create', [AdminController::class, 'createPart'])->name('admin.parts.create');
+    Route::post('/categories/{category}/parts', [AdminController::class, 'storePart'])->name('admin.parts.store');
+    Route::put('/parts/{part}', [AdminController::class, 'updatePart'])->name('admin.parts.update');
+    Route::delete('/parts/{part}', [AdminController::class, 'destroyPart'])->name('admin.parts.destroy');
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/customers', [AdminController::class, 'customers'])->name('admin.customers');
+});
+
+
+// Customer Routes
+Route::middleware(['auth', 'customer:customer'])->prefix('customer')->group(function () {
+    Route::get('/dashboard', [CustomerController::class, 'index'])->name('customer.dashboard');
 
 });
 
