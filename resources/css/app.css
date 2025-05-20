@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.part-card {
+    transition: transform 0.2s;
+    height: 100%;
+}
+
+.part-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.category-section {
+    margin-bottom: 2rem;
+}
+
+.category-title {
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+.no-image-placeholder {
+    border: 1px dashed #ccc;
+}
+
+.card-img-top {
+    transition: transform 0.3s ease;
+}
+.card:hover .card-img-top {
+    transform: scale(1.03);
+}
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}

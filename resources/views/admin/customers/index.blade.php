@@ -24,7 +24,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" name="search"
                                         placeholder="Search customers..." value="{{ request('search') }}">
-                                    <button class="btn btn-outline-secondary" type="submit">Search</button>
+                                    <button class="btn btn-outline-success" type="submit">Search</button>
                                 </div>
                             </form>
                         </div>

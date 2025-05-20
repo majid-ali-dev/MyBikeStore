@@ -17,6 +17,7 @@ return new class extends Migration
          $table->foreignId('part_id')->constrained('parts');
          $table->integer('quantity')->default(1);
          $table->decimal('unit_price', 10, 2);
+         $table->string('part_image_path')->nullable(); 
          $table->timestamps();
      });
     }

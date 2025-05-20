@@ -28,9 +28,10 @@
                     <span class="ms-1 d-none d-sm-inline">Dashboard</span>
                 </a>
             </li>
+
             <!-- Bike Builder -->
             <li class="nav-item w-100">
-                <a href="#" class="nav-link mt-2 px-0 align-middle text-white">
+                <a href="{{ route('customer.bike-builder') }}" class="nav-link mt-2 px-0 align-middle text-white">
                     <i class="fs-4 fas fa-tools"></i>
                     <span class="ms-1 d-none d-sm-inline">Build Your Bike</span>
                 </a>

@@ -33,13 +33,18 @@ Route::middleware(['auth', 'admin:admin'])->prefix('admin')->group(function () {
     Route::delete('/parts/{part}', [AdminController::class, 'destroyPart'])->name('admin.parts.destroy');
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/customers', [AdminController::class, 'customers'])->name('admin.customers');
+    Route::get('/admin/orders', [AdminController::class, 'ordersList'])->name('admin.orders.index');
+    Route::get('/admin/orders/{order}', [AdminController::class, 'showOrder'])->name('admin.orders.show');
+
+
 });
 
 
 // Customer Routes
 Route::middleware(['auth', 'customer:customer'])->prefix('customer')->group(function () {
     Route::get('/dashboard', [CustomerController::class, 'index'])->name('customer.dashboard');
-
+    Route::get('/bike-builder', [CustomerController::class, 'bikeBuilder'])->name('customer.bike-builder');
+    Route::post('/submit-bike-order', [CustomerController::class, 'submitBikeOrder'])->name('customer.submit-bike-order');
 });
 
 

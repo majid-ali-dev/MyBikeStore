@@ -47,7 +47,7 @@
 
             <!-- Orders -->
             <li class="nav-item w-100 mt-2">
-                <a href="#" class="nav-link px-0 align-middle text-white">
+                <a href="{{ route('admin.orders.index') }}" class="nav-link px-0 align-middle text-white">
                     <i class="fs-4 fas fa-tasks"></i>
                     <span class="ms-1 d-none d-sm-inline">Manage Orders</span>
                 </a>

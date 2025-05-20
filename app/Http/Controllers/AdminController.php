@@ -238,4 +238,31 @@ class AdminController extends Controller
             return back()->with('error', 'Failed to delete part: ' . $e->getMessage());
         }
     }
+
+
+    /**
+     * Display a paginated list of orders with their details.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function ordersList()
+    {
+        $orders = Order::with(['user', 'items.part'])->paginate(10);
+        return view('admin.orders.index', compact('orders'));
+    }
+
+
+    /**
+    * Display the details of a specific order.
+    *
+    * @param \App\Models\Order $order
+    * @return \Illuminate\View\View
+    */
+    public function showOrder(Order $order)
+    {
+        $order->load(['user', 'items.part.category']); // Eager load the relationships including categories
+        return view('admin.orders.show', compact('order'));
+    }
+
+       
 }

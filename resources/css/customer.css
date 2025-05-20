@@ -1,4 +1,27 @@
 
+.part-card {
+    transition: transform 0.2s;
+    height: 100%;
+}
+
+.part-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.category-section {
+    margin-bottom: 2rem;
+}
+
+.category-title {
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+.no-image-placeholder {
+    border: 1px dashed #ccc;
+}
+
 @media (max-width: 767.98px) {
     #sidebar {
         position: fixed;
