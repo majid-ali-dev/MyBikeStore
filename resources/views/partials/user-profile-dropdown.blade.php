@@ -1,5 +1,6 @@
 <!-- User Profile & Logout -->
-<div class="dropdown pb-4 w-100" style="position: absolute; bottom: 0; left: 0; mt-2">
+{{-- <div class="dropdown pb-4 w-100" style="position: absolute; bottom: 0; left: 0; mt-2"> --}}
+    <div class="dropdown pb-4 w-100 mt-auto">
     <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1"
         data-bs-toggle="dropdown" aria-expanded="false">
         <img src="https://via.placeholder.com/30" alt="Profile" class="rounded-circle me-2" width="30" height="30">
