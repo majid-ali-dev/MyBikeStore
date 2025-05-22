@@ -21,9 +21,22 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        return view('customer.dashboard');
-    }
+        $user = Auth::user();
 
+        $stats = [
+            'total_orders' => $user->orders()->count(),
+            'pending_orders' => $user->orders()->where('status', 'pending')->count(),
+            'completed_orders' => $user->orders()->where('status', 'completed')->count(),
+        ];
+
+        $recentOrders = $user->orders()
+            ->withCount('items')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('customer.dashboard', compact('stats', 'recentOrders'));
+    }
     /**
      * Show the bike builder interface.
      *
@@ -109,5 +122,37 @@ class CustomerController extends Controller
             // Return with error message if transaction fails
             return back()->with('error', 'Error: '.$e->getMessage());
         }
+    }
+
+        /**
+     * Show all current/pending orders for the customer.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function orders()
+    {
+        $orders = Auth::user()->orders()
+            ->withCount('items')
+            ->whereIn('status', ['pending', 'processing'])
+            ->latest()
+            ->paginate(10);
+
+        return view('customer.orders.index', compact('orders'));
+    }
+
+    /**
+     * Show completed order history for the customer.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function orderHistory()
+    {
+        $orders = Auth::user()->orders()
+            ->withCount('items')
+            ->where('status', 'completed')
+            ->latest()
+            ->paginate(10);
+
+        return view('customer.orders.history', compact('orders'));
     }
 }
