@@ -43,6 +43,7 @@ Route::middleware(['auth', 'admin:admin'])->prefix('admin')->group(function () {
 // Customer Routes
 Route::middleware(['auth', 'customer:customer'])->prefix('customer')->group(function () {
     Route::get('/dashboard', [CustomerController::class, 'index'])->name('customer.dashboard');
+
     Route::get('/bike-builder', [CustomerController::class, 'bikeBuilder'])->name('customer.bike-builder');
     Route::post('/submit-bike-order', [CustomerController::class, 'submitBikeOrder'])->name('customer.submit-bike-order');
     Route::get('/orders', [CustomerController::class, 'orders'])->name('customer.orders');
