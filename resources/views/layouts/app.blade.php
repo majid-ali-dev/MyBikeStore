@@ -11,6 +11,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {{--  --}}
+    <script src="https://js.stripe.com/v3/"></script>
     <!-- Custom CSS -->
     @stack('styles')
 </head>
@@ -20,19 +22,41 @@
     <div id="message-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999; width: 300px;">
         <!-- Session Success Messages -->
         @if (session('success'))
+            @php
+                $success = session('success');
+            @endphp
+
             <div class="alert alert-success alert-dismissible fade show">
-                {{ session('success') }}
+                @if (is_array($success) && isset($success['title']))
+                    <h5>{{ $success['title'] }}</h5>
+                @endif
+
+                @if (is_array($success) && isset($success['message']))
+                    <p>{{ $success['message'] }}</p>
+                @else
+                    <p>{{ $success }}</p> {{-- Fallback if success is just a plain string --}}
+                @endif
+
+                @if (is_array($success) && isset($success['details']) && is_array($success['details']))
+                    <ul class="mb-0">
+                        @foreach ($success['details'] as $key => $value)
+                            <li><strong>{{ $key }}:</strong> {{ $value }}</li>
+                        @endforeach
+                    </ul>
+                @endif
+
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
         <!-- Session Error Messages -->
-        @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        @php $error = session('error'); @endphp
+        @if (is_array($error))
+            {{ $error['message'] ?? 'Something went wrong.' }}
+        @else
+            {{ $error }}
         @endif
+
 
         <!-- Validation Errors -->
         @if ($errors->any())

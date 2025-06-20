@@ -18,7 +18,8 @@
                                 <div class="col-md-8">
                                     @foreach ($categories as $category)
                                         <div class="category-section mb-4">
-                                            <h5 class="category-title bg-secondary text-white p-2">
+                                            <h5 class="category-title bg-secondary text-white p-2"
+                                                data-category-id="{{ $category->id }}">
                                                 {{ $category->name }}
                                             </h5>
 
@@ -116,9 +117,10 @@
 
     @push('scripts')
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://js.stripe.com/v3/"></script>
         <script>
             $(document).ready(function() {
-                let selectedParts = [];
+                let selectedParts = {}; // Stores parts by category ID
                 let subtotal = 0;
 
                 // Add part to bike
@@ -127,39 +129,79 @@
                     const partCard = $(this).closest('.part-card');
                     const partPrice = parseFloat(partCard.data('price'));
                     const partName = partCard.find('.card-title').text();
+                    const categoryId = partCard.closest('.category-section').find('.category-title').data(
+                        'category-id');
 
-                    if (!selectedParts.includes(partId)) {
-                        selectedParts.push(partId);
+                    // Reset all buttons in this category to default state
+                    partCard.closest('.category-section').find('.add-part-btn')
+                        .html('<i class="fas fa-plus"></i> Add to Bike')
+                        .removeClass('btn-success')
+                        .addClass('btn-outline-primary');
+
+                    // If this part is already selected, remove it
+                    if (selectedParts[categoryId] && selectedParts[categoryId].id === partId) {
+                        subtotal -= selectedParts[categoryId].price;
+                        delete selectedParts[categoryId];
+
+                        // Update button appearance
+                        $(this).html('<i class="fas fa-plus"></i> Add to Bike')
+                            .removeClass('btn-success')
+                            .addClass('btn-outline-primary');
+                    }
+                    // Otherwise, add/update the selection for this category
+                    else {
+                        // If there was a previous selection in this category, subtract its price
+                        if (selectedParts[categoryId]) {
+                            subtotal -= selectedParts[categoryId].price;
+                        }
+
+                        // Add the new selection
+                        selectedParts[categoryId] = {
+                            id: partId,
+                            name: partName,
+                            price: partPrice,
+                            categoryId: categoryId
+                        };
+
                         subtotal += partPrice;
-                        updateOrderSummary();
 
                         // Update button appearance
                         $(this).html('<i class="fas fa-check"></i> Added')
                             .removeClass('btn-outline-primary')
                             .addClass('btn-success');
-
-                        // Add part to summary
-                        $('#selected-parts-container').append(`
-                    <div class="selected-part mb-2" data-part-id="${partId}">
-                        <div class="d-flex justify-content-between">
-                            <span>${partName}</span>
-                            <span>$${partPrice.toFixed(2)}</span>
-                        </div>
-                    </div>
-                `);
-
-                        // Add hidden input for this part
-                        $('#selected-parts-inputs-container').append(`
-                    <input type="hidden" name="selected_parts[]" value="${partId}">
-                `);
                     }
+
+                    updateOrderSummary();
                 });
 
                 // Update order summary
                 function updateOrderSummary() {
-                    if (selectedParts.length > 0) {
+                    const selectedPartsArray = Object.values(selectedParts);
+
+                    if (selectedPartsArray.length > 0) {
                         // Enable submit button
                         $('#submit-order-btn').prop('disabled', false);
+
+                        // Clear and rebuild the parts list
+                        $('#selected-parts-container').empty();
+                        $('#selected-parts-inputs-container').empty();
+
+                        // Add each selected part to the summary
+                        selectedPartsArray.forEach(part => {
+                            $('#selected-parts-container').append(`
+                    <div class="selected-part mb-2" data-part-id="${part.id}" data-category-id="${part.categoryId}">
+                        <div class="d-flex justify-content-between">
+                            <span>${part.name}</span>
+                            <span>$${part.price.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `);
+
+                            // Add hidden input for this part
+                            $('#selected-parts-inputs-container').append(`
+                    <input type="hidden" name="selected_parts[]" value="${part.id}">
+                `);
+                        });
 
                         // Calculate prices
                         const advance = subtotal * 0.4;
@@ -178,6 +220,25 @@
                         $('#total').text('$0.00');
                     }
                 }
+
+                // Form submission handler
+                $('#bike-order-form').on('submit', function(e) {
+                    e.preventDefault();
+
+                    // Basic validation
+                    if (Object.keys(selectedParts).length === 0) {
+                        alert('Please select at least one part');
+                        return false;
+                    }
+
+                    if ($('textarea[name="shipping_address"]').val().trim() === '') {
+                        alert('Please enter your shipping address');
+                        return false;
+                    }
+
+                    // If validation passes, submit the form
+                    this.submit();
+                });
             });
         </script>
     @endpush

@@ -40,8 +40,10 @@
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <a href="#" class="btn btn-sm btn-outline-primary">View
-                                                            Details</a>
+                                                        <a href="{{ route('customer.orders.show', $order->id) }}"
+                                                            class="btn btn-sm btn-outline-primary">
+                                                            View Details
+                                                        </a>
                                                     </td>
                                                 </tr>
                                             @endforeach

@@ -188,6 +188,7 @@
     <div class="container">
         <div class="card">
             {{-- <img src="{{ asset('images/istockphot204.jpg') }}" alt="Logo"> --}}
+            <span style="color:#db4a39"><h1><i class="fas fa-motorcycle me-2"></i></h1></span>
             <h4>MyBikeStore</h4>
             <p>Please login to your account</p>
             <form action="{{ route('loginMatch') }}" method="POST">

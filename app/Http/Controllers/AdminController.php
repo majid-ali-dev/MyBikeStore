@@ -251,6 +251,30 @@ class AdminController extends Controller
         return view('admin.orders.index', compact('orders'));
     }
 
+     /**
+     * Update the specified order in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Order  $order
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateOrder(Request $request, Order $order)
+    {
+    $request->validate([
+        'status' => 'required|in:pending,processing,completed,cancelled'
+    ]);
+
+    try {
+        $order->update([
+            'status' => $request->status
+        ]);
+
+        return redirect()->route('admin.orders.show', $order->id)
+            ->with('success', 'Order status updated successfully!');
+    } catch (\Exception $e) {
+        return back()->with('error', 'Failed to update order: ' . $e->getMessage());
+    }
+    }
 
     /**
     * Display the details of a specific order.
@@ -260,9 +284,9 @@ class AdminController extends Controller
     */
     public function showOrder(Order $order)
     {
-        $order->load(['user', 'items.part.category']); // Eager load the relationships including categories
+        $order->load(['user', 'items.part.category']);
         return view('admin.orders.show', compact('order'));
     }
 
-       
+
 }

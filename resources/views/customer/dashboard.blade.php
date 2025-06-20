@@ -8,6 +8,7 @@
             <!-- Main Content -->
             <div class="col py-3">
                 <div class="container-fluid">
+                    <!-- Dashboard Header -->
                     <div
                         class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">Customer Dashboard</h1>
@@ -80,7 +81,7 @@
                         </div>
                     </div>
 
-                    <!-- Recent Orders -->
+                    <!-- Recent Orders Table -->
                     <div class="card shadow">
                         <div class="card-header">
                             <h5 class="mb-0">Recent Orders</h5>
@@ -113,7 +114,10 @@
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                                                        <a href="{{ route('customer.orders.show', $order->id) }}"
+                                                            class="btn btn-sm btn-outline-primary">
+                                                            View
+                                                        </a>
                                                     </td>
                                                 </tr>
                                             @endforeach

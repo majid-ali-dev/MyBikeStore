@@ -68,63 +68,78 @@ class CustomerController extends Controller
      */
     public function submitBikeOrder(Request $request)
     {
-        // Validate required order data
-        $request->validate([
-            'selected_parts' => 'required|array',
-            'selected_parts.*' => 'exists:parts,id',
-            'shipping_address' => 'required|string',
-            'notes' => 'nullable|string'
+    $request->validate([
+        'selected_parts' => 'required|array',
+        'selected_parts.*' => 'exists:parts,id',
+        'shipping_address' => 'required|string',
+        'notes' => 'nullable|string'
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        $parts = Part::whereIn('id', $request->selected_parts)->get();
+        $totalAmount = $parts->sum('price');
+        $advancePayment = $totalAmount * 0.4;
+
+        $order = Order::create([
+            'user_id' => Auth::id(),
+            'total_amount' => $totalAmount,
+            'status' => 'pending',
+            'payment_status' => false, // Will be true after payment
+            'advance_payment' => $advancePayment,
+            'shipping_address' => $request->shipping_address,
+            'notes' => $request->notes
         ]);
 
-        try {
-            // Start a database transaction
-            DB::beginTransaction();
-
-            // Get all selected parts with their details
-            $parts = Part::whereIn('id', $request->selected_parts)->get();
-
-            // Calculate order financials
-            $totalAmount = $parts->sum('price');
-            $advancePayment = $totalAmount * 0.4; // 40% advance required
-
-            // Create the main order record
-            $order = Order::create([
-                'user_id' => Auth::id(),
-                'total_amount' => $totalAmount,
-                'status' => 'pending',
-                'payment_status' => false,
-                'advance_payment' => $advancePayment,
-                'shipping_address' => $request->shipping_address,
-                'notes' => $request->notes
+        foreach ($parts as $part) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'part_id' => $part->id,
+                'quantity' => 1,
+                'unit_price' => $part->price,
+                'part_image_path' => $part->image
             ]);
-
-            // Create order items for each selected part
-            foreach ($parts as $part) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'part_id' => $part->id,
-                    'quantity' => 1,
-                    'unit_price' => $part->price,
-                    'part_image_path' => $part->image // Preserve part image at time of order
-                ]);
-            }
-            // If we reach here without exceptions, commit the transaction
-            DB::commit();
-
-            // Redirect with success message
-            return redirect()->route('customer.dashboard')
-                ->with('success', 'Order submitted successfully!');
-
-        } catch (\Exception $e) {
-            // Something went wrong, rollback the transaction
-            DB::rollBack();
-
-            // Return with error message if transaction fails
-            return back()->with('error', 'Error: '.$e->getMessage());
         }
+
+        DB::commit();
+
+        // Redirect to payment page instead of dashboard
+        return redirect()->route('customer.payment', $order);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Error: '.$e->getMessage());
+    }
     }
 
-        /**
+
+    /**
+    * Display order details
+    *
+    * @param \App\Models\Order $order The order to display
+    * @return \Illuminate\View\View|\Illuminate\Http\JsonResponse
+    */
+    public function showOrder(Order $order)
+    {
+    // Verify the order belongs to the authenticated user
+    if ($order->user_id != auth()->id()) {
+        abort(403, 'Unauthorized access to this order');
+    }
+
+    // Eager load items with their parts
+    $order->load(['items.part']);
+
+    // Return different views based on order status
+    if ($order->status == 'completed') {
+        return view('customer.orders.showorderhistory', compact('order'));
+    }
+
+    return view('customer.orders.show', compact('order'));
+    }
+
+
+    /**
      * Show all current/pending orders for the customer.
      *
      * @return \Illuminate\View\View
@@ -155,4 +170,5 @@ class CustomerController extends Controller
 
         return view('customer.orders.history', compact('orders'));
     }
+
 }
