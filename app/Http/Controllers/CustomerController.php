@@ -47,9 +47,18 @@ class CustomerController extends Controller
      */
     public function bikeBuilder()
     {
-        $categories = PartCategory::with('parts')->get();
+        $categories = PartCategory::with(['parts' => function ($query) {
+        $query->where('stock', '>', 0);
+        }])
+        ->get()
+        ->filter(function ($category) {
+            return $category->parts->count() > 0; // only keep categories that have parts
+        });
+
         return view('customer.bike-builder', compact('categories'));
     }
+
+
 
     /**
      * Process and submit a custom bike order.
@@ -68,15 +77,15 @@ class CustomerController extends Controller
      */
     public function submitBikeOrder(Request $request)
     {
-    $request->validate([
-        'selected_parts' => 'required|array',
-        'selected_parts.*' => 'exists:parts,id',
-        'shipping_address' => 'required|string',
-        'notes' => 'nullable|string'
-    ]);
+     $request->validate([
+         'selected_parts' => 'required|array',
+         'selected_parts.*' => 'exists:parts,id',
+         'shipping_address' => 'required|string',
+         'notes' => 'nullable|string'
+     ]);
 
-    try {
-        DB::beginTransaction();
+     try {
+         DB::beginTransaction();
 
         $parts = Part::whereIn('id', $request->selected_parts)->get();
         $totalAmount = $parts->sum('price');
@@ -92,14 +101,24 @@ class CustomerController extends Controller
             'notes' => $request->notes
         ]);
 
-        foreach ($parts as $part) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'part_id' => $part->id,
-                'quantity' => 1,
-                'unit_price' => $part->price,
-                'part_image_path' => $part->image
-            ]);
+      foreach ($parts as $part) {
+      // Step 1: Check if part is in stock
+      if ($part->stock <= 0) {
+          throw new \Exception("Part '{$part->name}' is out of stock.");
+      }
+
+      // Step 2: Create Order Item
+      OrderItem::create([
+        'order_id' => $order->id,
+        'part_id' => $part->id,
+        'quantity' => 1,
+        'unit_price' => $part->price,
+        'part_image_path' => $part->image
+      ]);
+
+     // Step 3: Decrement stock by 1
+     $part->decrement('stock');
+
         }
 
         DB::commit();
@@ -107,10 +126,10 @@ class CustomerController extends Controller
         // Redirect to payment page instead of dashboard
         return redirect()->route('customer.payment', $order);
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return back()->with('error', 'Error: '.$e->getMessage());
-    }
+     } catch (\Exception $e) {
+         DB::rollBack();
+         return back()->with('error', 'Error: '.$e->getMessage());
+     }
     }
 
 
