@@ -154,12 +154,21 @@
                         <i class="fas fa-arrow-left me-2"></i>Back to Orders
                     </a>
                     @if ($order->status != 'completed')
-                        <form action="{{ route('admin.orders.update', $order->id) }}" method="POST">
+                        <form action="{{ route('admin.orders.update', $order->id) }}" method="POST"
+                            class="d-flex align-items-center gap-2">
                             @csrf
                             @method('PUT')
                             <input type="hidden" name="status" value="completed">
+
+                            <div class="form-group mb-0">
+                                <label for="expected_completion_date" class="form-label mb-0 small">Expected Completion
+                                    Date:</label>
+                                <input type="date" name="expected_completion_date" class="form-control form-control-sm"
+                                    value="{{ now()->addDays(7)->format('Y-m-d') }}" required>
+                            </div>
+
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-check-circle me-2"></i>Mark as Completed
+                                <i class="fas fa-check-circle me-1"></i>Mark as Completed
                             </button>
                         </form>
                     @endif

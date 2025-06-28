@@ -14,7 +14,7 @@ class Order extends Model
         'advance_payment',
         'shipping_address',
         'notes',
-        // Add any other fields that should be mass-assignable
+        'expected_completion_date',
     ];
 
     public function user()

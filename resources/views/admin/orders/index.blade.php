@@ -4,9 +4,20 @@
     <div class="container mt-2">
         <h1>Manage Orders</h1>
 
+        <div class="mb-3">
+            <a href="{{ route('admin.orders.index', ['status' => 'processing']) }}"
+                class="btn {{ $status == 'processing' ? 'btn-primary' : 'btn-outline-primary' }}">
+                Processing Orders
+            </a>
+            <a href="{{ route('admin.orders.index', ['status' => 'completed']) }}"
+                class="btn {{ $status == 'completed' ? 'btn-primary' : 'btn-outline-primary' }} ms-2">
+                Completed Orders
+            </a>
+        </div>
+
         @if ($orders->isEmpty())
             <div class="alert alert-info">
-                No orders found.
+                No {{ $status }} orders found.
             </div>
         @else
             <div class="table-responsive">
@@ -18,6 +29,7 @@
                             <th>Total Amount</th>
                             <th>Status</th>
                             <th>Payment Status</th>
+                            <th><u>Delivery Deadline</u></th> {{-- 👈 New Column --}}
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -28,7 +40,8 @@
                                 <td>{{ $order->user->name }}</td>
                                 <td>${{ number_format($order->total_amount, 2) }}</td>
                                 <td>
-                                    <span class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'danger') }}">
+                                    <span
+                                        class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'danger') }}">
                                         {{ ucfirst($order->status) }}
                                     </span>
                                 </td>
@@ -36,6 +49,14 @@
                                     <span class="badge bg-{{ $order->payment_status ? 'success' : 'warning' }}">
                                         {{ $order->payment_status ? 'Paid' : 'Pending' }}
                                     </span>
+                                </td>
+                                <td>
+                                    @if ($order->delivery_deadline)
+                                        <span
+                                            class="text-success">{{ \Carbon\Carbon::parse($order->delivery_deadline)->format('M d, Y') }}</span>
+                                    @else
+                                        <span class="text-muted">N/A</span>
+                                    @endif
                                 </td>
                                 <td>
                                     <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-info">View</a>

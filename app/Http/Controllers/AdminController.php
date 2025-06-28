@@ -243,12 +243,18 @@ class AdminController extends Controller
     /**
      * Display a paginated list of orders with their details.
      *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View
      */
-    public function ordersList()
+    public function ordersList(Request $request)
     {
-        $orders = Order::with(['user', 'items.part'])->paginate(10);
-        return view('admin.orders.index', compact('orders'));
+        $status = $request->get('status', 'processing'); // Default to processing
+
+        $orders = Order::with(['user', 'items.part'])
+                ->where('status', $status)
+                ->paginate(10);
+
+        return view('admin.orders.index', compact('orders', 'status'));
     }
 
      /**
@@ -261,20 +267,24 @@ class AdminController extends Controller
     public function updateOrder(Request $request, Order $order)
     {
     $request->validate([
-        'status' => 'required|in:pending,processing,completed,cancelled'
+        'status' => 'required|in:pending,processing,completed,cancelled',
+        'expected_completion_date' => 'nullable|date'
     ]);
 
     try {
         $order->update([
-            'status' => $request->status
+            'status' => $request->status,
+            'expected_completion_date' => $request->expected_completion_date,
         ]);
 
         return redirect()->route('admin.orders.show', $order->id)
-            ->with('success', 'Order status updated successfully!');
+            ->with('success', 'Order status and expected completion date updated successfully!');
     } catch (\Exception $e) {
         return back()->with('error', 'Failed to update order: ' . $e->getMessage());
     }
     }
+    
+
 
     /**
     * Display the details of a specific order.
