@@ -54,7 +54,7 @@
             </li>
 
             <!-- Customers -->
-            <li class="nav-item w-100 mt-2">
+            <li class="nav-item w-100 mt-2 mb-3">
                 <a href="{{ route('admin.customers') }}" class="nav-link px-0 align-middle text-white">
                     <i class="fs-4 fas fa-users"></i>
                     <span class="ms-1 d-none d-sm-inline">Customers</span>

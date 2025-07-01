@@ -1,73 +1,103 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-2">
-        <h1>Manage Orders</h1>
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+            @include('partials.admin-sidebar')
 
-        <div class="mb-3">
-            <a href="{{ route('admin.orders.index', ['status' => 'processing']) }}"
-                class="btn {{ $status == 'processing' ? 'btn-primary' : 'btn-outline-primary' }}">
-                Processing Orders
-            </a>
-            <a href="{{ route('admin.orders.index', ['status' => 'completed']) }}"
-                class="btn {{ $status == 'completed' ? 'btn-primary' : 'btn-outline-primary' }} ms-2">
-                Completed Orders
-            </a>
+            <!-- Main Content -->
+            <div class="col py-3">
+                <div class="container mt-2">
+                    <div
+                        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1>Manage Orders</h1>
+                        <button class="btn btn-sm btn-danger d-md-none" id="sidebarToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </div>
+
+                    <div class="mb-3">
+                        <a href="{{ route('admin.orders.index', ['status' => 'processing']) }}"
+                            class="btn {{ $status == 'processing' ? 'btn-primary' : 'btn-outline-primary' }}">
+                            Processing Orders
+                        </a>
+                        <a href="{{ route('admin.orders.index', ['status' => 'completed']) }}"
+                            class="btn {{ $status == 'completed' ? 'btn-primary' : 'btn-outline-primary' }} ms-2">
+                            Completed Orders
+                        </a>
+                    </div>
+
+                    @if ($orders->isEmpty())
+                        <div class="alert alert-info">
+                            No {{ $status }} orders found.
+                        </div>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>User</th>
+                                        <th>Total Amount</th>
+                                        <th>Status</th>
+                                        <th>Payment Status</th>
+                                        <th><u>Delivery Deadline</u></th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($orders as $order)
+                                        <tr>
+                                            <td>{{ $order->id }}</td>
+                                            <td>{{ $order->user->name }}</td>
+                                            <td>${{ number_format($order->total_amount, 2) }}</td>
+                                            <td>
+                                                <span
+                                                    class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'danger') }}">
+                                                    {{ ucfirst($order->status) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="badge bg-{{ $order->payment_status ? 'success' : 'warning' }}">
+                                                    {{ $order->payment_status ? 'Paid' : 'Pending' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if ($order->delivery_deadline)
+                                                    <span
+                                                        class="text-success">{{ \Carbon\Carbon::parse($order->delivery_deadline)->format('M d, Y') }}</span>
+                                                @else
+                                                    <span class="text-muted">N/A</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('admin.orders.show', $order->id) }}"
+                                                    class="btn btn-info">View</a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            {{ $orders->links() }}
+                        </div>
+                    @endif
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-dark mt-2 mb-2">Back</a>
+                </div>
+            </div>
         </div>
-
-        @if ($orders->isEmpty())
-            <div class="alert alert-info">
-                No {{ $status }} orders found.
-            </div>
-        @else
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>User</th>
-                            <th>Total Amount</th>
-                            <th>Status</th>
-                            <th>Payment Status</th>
-                            <th><u>Delivery Deadline</u></th> {{-- 👈 New Column --}}
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($orders as $order)
-                            <tr>
-                                <td>{{ $order->id }}</td>
-                                <td>{{ $order->user->name }}</td>
-                                <td>${{ number_format($order->total_amount, 2) }}</td>
-                                <td>
-                                    <span
-                                        class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'danger') }}">
-                                        {{ ucfirst($order->status) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-{{ $order->payment_status ? 'success' : 'warning' }}">
-                                        {{ $order->payment_status ? 'Paid' : 'Pending' }}
-                                    </span>
-                                </td>
-                                <td>
-                                    @if ($order->delivery_deadline)
-                                        <span
-                                            class="text-success">{{ \Carbon\Carbon::parse($order->delivery_deadline)->format('M d, Y') }}</span>
-                                    @else
-                                        <span class="text-muted">N/A</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <a href="{{ route('admin.orders.show', $order->id) }}" class="btn btn-info">View</a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                {{ $orders->links() }}
-            </div>
-        @endif
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-dark mt-2 mb-2">Back</a>
     </div>
+
+    @push('scripts')
+        <script>
+            // Sidebar toggle functionality
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('show');
+            });
+
+            document.getElementById('sidebarClose').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.remove('show');
+            });
+        </script>
+    @endpush
 @endsection

@@ -49,7 +49,7 @@
             </li>
 
             <!-- Order History -->
-            <li class="nav-item w-100">
+            <li class="nav-item w-100 mb-3">
                 <a href="{{ route('customer.orders.history') }}"
                    class="nav-link px-0 align-middle text-white {{ request()->routeIs('customer.orders.history') ? 'active' : '' }}">
                     <i class="fs-4 fas fa-history"></i>
