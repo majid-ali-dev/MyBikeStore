@@ -195,30 +195,48 @@
                 </div>
             </div>
         </div>
+
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay d-md-none" id="sidebarOverlay"></div>
     </div>
-
-    @push('scripts')
-        <script>
-            // Initialize Bootstrap tabs
-            document.addEventListener('DOMContentLoaded', function() {
-                var triggerTabList = [].slice.call(document.querySelectorAll('#componentTabs button'))
-                triggerTabList.forEach(function(triggerEl) {
-                    var tabTrigger = new bootstrap.Tab(triggerEl)
-                    triggerEl.addEventListener('click', function(event) {
-                        event.preventDefault()
-                        tabTrigger.show()
-                    })
-                })
-
-                // Sidebar toggle functionality
-                document.getElementById('sidebarToggle').addEventListener('click', function() {
-                    document.getElementById('sidebar').classList.toggle('show');
-                });
-
-                document.getElementById('sidebarClose').addEventListener('click', function() {
-                    document.getElementById('sidebar').classList.remove('show');
-                });
-            });
-        </script>
-    @endpush
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const closeBtn = document.getElementById('sidebarClose');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            // Initialize Bootstrap tabs
+            var triggerTabList = [].slice.call(document.querySelectorAll('#componentTabs button'))
+            triggerTabList.forEach(function(triggerEl) {
+                var tabTrigger = new bootstrap.Tab(triggerEl)
+                triggerEl.addEventListener('click', function(event) {
+                    event.preventDefault()
+                    tabTrigger.show()
+                })
+            })
+
+            // Toggle sidebar on button click
+            toggleBtn?.addEventListener('click', function() {
+                sidebar.classList.add('show');
+                body.classList.add('sidebar-open');
+            });
+
+            // Close sidebar on close button click
+            closeBtn?.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                body.classList.remove('sidebar-open');
+            });
+
+            // Close sidebar when clicking on overlay
+            overlay?.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                body.classList.remove('sidebar-open');
+            });
+        });
+    </script>
+@endpush

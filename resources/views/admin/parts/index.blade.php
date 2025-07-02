@@ -113,7 +113,6 @@
                                                         </p>
                                                         <p><strong>Specifications:</strong>
                                                             {{ $part->specifications ?? 'N/A' }}</p>
-
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary"
@@ -159,7 +158,6 @@
                                                                 <label class="form-label">Description</label>
                                                                 <textarea name="description" class="form-control">{{ $part->description }}</textarea>
                                                             </div>
-
                                                             <div class="mb-3">
                                                                 <label class="form-label">Specifications</label>
                                                                 <textarea name="specifications" class="form-control">{{ $part->specifications }}</textarea>
@@ -231,30 +229,47 @@
                 </div>
             </div>
         </div>
+
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay d-md-none" id="sidebarOverlay"></div>
     </div>
-
-    @push('scripts')
-        <script>
-            // Auto-close success/error messages after 5 seconds
-            document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(function() {
-                    var alerts = document.querySelectorAll('.alert');
-                    alerts.forEach(function(alert) {
-                        var bsAlert = new bootstrap.Alert(alert);
-                        bsAlert.close();
-                    });
-                }, 5000);
-            });
-
-            // Sidebar toggle functionality
-            document.getElementById('sidebarToggle').addEventListener('click', function() {
-                document.getElementById('sidebar').classList.toggle('show');
-            });
-
-            document.getElementById('sidebarClose').addEventListener('click', function() {
-                document.getElementById('sidebar').classList.remove('show');
-            });
-        </script>
-    @endpush
-
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const closeBtn = document.getElementById('sidebarClose');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            // Toggle sidebar on button click
+            toggleBtn?.addEventListener('click', function() {
+                sidebar.classList.add('show');
+                body.classList.add('sidebar-open');
+            });
+
+            // Close sidebar on close button click
+            closeBtn?.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                body.classList.remove('sidebar-open');
+            });
+
+            // Close sidebar when clicking on overlay
+            overlay?.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                body.classList.remove('sidebar-open');
+            });
+
+            // Auto-close success/error messages after 5 seconds
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+@endpush

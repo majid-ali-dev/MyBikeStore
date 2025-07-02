@@ -58,18 +58,35 @@
                 </div>
             </div>
         </div>
+
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay d-md-none" id="sidebarOverlay"></div>
     </div>
-
-    @push('scripts')
-        <script>
-            // Sidebar toggle functionality
-            document.getElementById('sidebarToggle').addEventListener('click', function() {
-                document.getElementById('sidebar').classList.toggle('show');
-            });
-
-            document.getElementById('sidebarClose').addEventListener('click', function() {
-                document.getElementById('sidebar').classList.remove('show');
-            });
-        </script>
-    @endpush
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const closeBtn = document.getElementById('sidebarClose');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            toggleBtn?.addEventListener('click', function() {
+                sidebar.classList.add('show');
+                body.classList.add('sidebar-open');
+            });
+
+            closeBtn?.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                body.classList.remove('sidebar-open');
+            });
+
+            overlay?.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                body.classList.remove('sidebar-open');
+            });
+        });
+    </script>
+@endpush
