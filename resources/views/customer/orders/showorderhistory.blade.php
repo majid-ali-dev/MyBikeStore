@@ -7,8 +7,14 @@
 
             <div class="col py-3">
                 <div class="container-fluid">
-                    <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+
+                    <!-- Header with Toggle Button -->
+                    <div
+                        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">Completed Order #{{ $order->id }}</h1>
+                        <button class="btn btn-sm btn-danger d-md-none" id="sidebarToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
                         <a href="{{ route('customer.orders.history') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Back to History
                         </a>
@@ -25,7 +31,7 @@
                         </div>
 
                         <div class="card-body">
-                            <!-- Your custom content for completed orders -->
+                            <!-- Order Info -->
                             <div class="row mb-4">
                                 <div class="col-md-6">
                                     <h6>Order Information</h6>
@@ -74,10 +80,35 @@
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebarToggle = document.getElementById('sidebarToggle');
+                const sidebar = document.getElementById('sidebar');
+                const sidebarClose = document.getElementById('sidebarClose');
+
+                if (sidebarToggle && sidebar) {
+                    sidebarToggle.addEventListener('click', function() {
+                        sidebar.classList.remove('d-none');
+                        sidebar.classList.add('d-block', 'show');
+                    });
+                }
+
+                if (sidebarClose && sidebar) {
+                    sidebarClose.addEventListener('click', function() {
+                        sidebar.classList.remove('show', 'd-block');
+                        sidebar.classList.add('d-none');
+                    });
+                }
+            });
+        </script>
+    @endpush
 @endsection

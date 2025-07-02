@@ -7,9 +7,14 @@
 
             <div class="col py-3">
                 <div class="container-fluid">
+
+                    <!-- Header with Toggle Button -->
                     <div
                         class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">Order History</h1>
+                        <button class="btn btn-sm btn-danger d-md-none" id="sidebarToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
                     </div>
 
                     <div class="card shadow">
@@ -67,4 +72,28 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebarToggle = document.getElementById('sidebarToggle');
+                const sidebar = document.getElementById('sidebar');
+                const sidebarClose = document.getElementById('sidebarClose');
+
+                if (sidebarToggle && sidebar) {
+                    sidebarToggle.addEventListener('click', function() {
+                        sidebar.classList.remove('d-none');
+                        sidebar.classList.add('d-block', 'show');
+                    });
+                }
+
+                if (sidebarClose && sidebar) {
+                    sidebarClose.addEventListener('click', function() {
+                        sidebar.classList.remove('show', 'd-block');
+                        sidebar.classList.add('d-none');
+                    });
+                }
+            });
+        </script>
+    @endpush
 @endsection

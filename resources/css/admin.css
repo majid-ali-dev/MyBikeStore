@@ -69,3 +69,43 @@
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
+/* Sidebar nav link base style */
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    font-size: 15px;
+    border-radius: 8px;
+    color: #ffffff;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* Icon margin */
+.sidebar .nav-link i {
+    margin-right: 10px;
+}
+
+/* Hover effect */
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+/* Active state */
+.sidebar .nav-link.active {
+    background-color: #0d6efd;
+    color: #fff !important;
+    font-weight: 500;
+}
+
+/* Ensure spacing between list items */
+.sidebar .nav-item {
+    margin-bottom: 6px;
+}
+
+/* Sidebar heading spacing */
+.sidebar a.text-decoration-none {
+    margin-bottom: 1.5rem;
+    font-size: 18px;
+    font-weight: bold;
+}

@@ -1,4 +1,4 @@
-<!-- User Profile & Logout -->
+{{-- User Profile & Logout --}}
 <div class="dropdown pb-4 w-100 mt-auto">
     <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1"
         data-bs-toggle="dropdown" aria-expanded="false">
@@ -11,6 +11,7 @@
         @endif
         <span class="d-none d-sm-inline mx-1">{{ Auth::user()->name }}</span>
     </a>
+
     <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
         <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal"><i
                     class="fas fa-user me-2"></i>Profile</a></li>

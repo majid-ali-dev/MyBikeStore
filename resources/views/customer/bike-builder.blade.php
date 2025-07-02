@@ -5,7 +5,20 @@
         <div class="row flex-nowrap">
             @include('partials.customer-sidebar')
 
+            <!-- Main Content -->
             <div class="col py-3">
+                <!-- Dashboard Header -->
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Build Your Custom Bike</h1>
+                    <button class="btn btn-sm btn-danger d-md-none" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+
+                <!-- Overlay for mobile sidebar -->
+                <div class="sidebar-overlay"></div>
+
                 <div class="container">
                     <div class="card">
                         <div class="card-header bg-primary text-white">
@@ -14,7 +27,6 @@
 
                         <div class="card-body">
                             <div class="row">
-                                <!-- Parts Selection -->
                                 <div class="col-md-8">
                                     @foreach ($categories as $category)
                                         <div class="category-section mb-4">
@@ -56,7 +68,6 @@
                                     @endforeach
                                 </div>
 
-                                <!-- Order Summary -->
                                 <div class="col-md-4">
                                     <div class="card sticky-top" style="top: 20px;">
                                         <div class="card-header bg-info text-white">
@@ -85,9 +96,7 @@
                                             <form id="bike-order-form" action="{{ route('customer.submit-bike-order') }}"
                                                 method="POST">
                                                 @csrf
-                                                <div id="selected-parts-inputs-container">
-                                                    <!-- Dynamic inputs will be added here -->
-                                                </div>
+                                                <div id="selected-parts-inputs-container"></div>
 
                                                 <div class="form-group mb-3">
                                                     <label for="shipping_address">Shipping Address</label>
@@ -116,14 +125,46 @@
     </div>
 
     @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebarToggle = document.getElementById('sidebarToggle');
+                const sidebar = document.getElementById('sidebar');
+                const sidebarClose = document.getElementById('sidebarClose');
+                const body = document.body;
+                const overlay = document.querySelector('.sidebar-overlay');
+
+                // Toggle sidebar
+                if (sidebarToggle) {
+                    sidebarToggle.addEventListener('click', function() {
+                        sidebar.classList.add('show');
+                        body.classList.add('sidebar-open');
+                    });
+                }
+
+                // Close sidebar
+                if (sidebarClose) {
+                    sidebarClose.addEventListener('click', function() {
+                        sidebar.classList.remove('show');
+                        body.classList.remove('sidebar-open');
+                    });
+                }
+
+                // Close sidebar when clicking on overlay
+                if (overlay) {
+                    overlay.addEventListener('click', function() {
+                        sidebar.classList.remove('show');
+                        body.classList.remove('sidebar-open');
+                    });
+                }
+            });
+        </script>
+
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://js.stripe.com/v3/"></script>
         <script>
             $(document).ready(function() {
-                let selectedParts = {}; // Stores parts by category ID
+                let selectedParts = {};
                 let subtotal = 0;
 
-                // Add part to bike
                 $(document).on('click', '.add-part-btn', function() {
                     const partId = $(this).data('part-id');
                     const partCard = $(this).closest('.part-card');
@@ -132,30 +173,23 @@
                     const categoryId = partCard.closest('.category-section').find('.category-title').data(
                         'category-id');
 
-                    // Reset all buttons in this category to default state
                     partCard.closest('.category-section').find('.add-part-btn')
                         .html('<i class="fas fa-plus"></i> Add to Bike')
                         .removeClass('btn-success')
                         .addClass('btn-outline-primary');
 
-                    // If this part is already selected, remove it
                     if (selectedParts[categoryId] && selectedParts[categoryId].id === partId) {
                         subtotal -= selectedParts[categoryId].price;
                         delete selectedParts[categoryId];
 
-                        // Update button appearance
                         $(this).html('<i class="fas fa-plus"></i> Add to Bike')
                             .removeClass('btn-success')
                             .addClass('btn-outline-primary');
-                    }
-                    // Otherwise, add/update the selection for this category
-                    else {
-                        // If there was a previous selection in this category, subtract its price
+                    } else {
                         if (selectedParts[categoryId]) {
                             subtotal -= selectedParts[categoryId].price;
                         }
 
-                        // Add the new selection
                         selectedParts[categoryId] = {
                             id: partId,
                             name: partName,
@@ -165,7 +199,6 @@
 
                         subtotal += partPrice;
 
-                        // Update button appearance
                         $(this).html('<i class="fas fa-check"></i> Added')
                             .removeClass('btn-outline-primary')
                             .addClass('btn-success');
@@ -174,40 +207,32 @@
                     updateOrderSummary();
                 });
 
-                // Update order summary
                 function updateOrderSummary() {
                     const selectedPartsArray = Object.values(selectedParts);
 
                     if (selectedPartsArray.length > 0) {
-                        // Enable submit button
                         $('#submit-order-btn').prop('disabled', false);
-
-                        // Clear and rebuild the parts list
                         $('#selected-parts-container').empty();
                         $('#selected-parts-inputs-container').empty();
 
-                        // Add each selected part to the summary
                         selectedPartsArray.forEach(part => {
                             $('#selected-parts-container').append(`
-                    <div class="selected-part mb-2" data-part-id="${part.id}" data-category-id="${part.categoryId}">
-                        <div class="d-flex justify-content-between">
-                            <span>${part.name}</span>
-                            <span>$${part.price.toFixed(2)}</span>
-                        </div>
-                    </div>
-                `);
+                                <div class="selected-part mb-2" data-part-id="${part.id}" data-category-id="${part.categoryId}">
+                                    <div class="d-flex justify-content-between">
+                                        <span>${part.name}</span>
+                                        <span>$${part.price.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            `);
 
-                            // Add hidden input for this part
                             $('#selected-parts-inputs-container').append(`
-                    <input type="hidden" name="selected_parts[]" value="${part.id}">
-                `);
+                                <input type="hidden" name="selected_parts[]" value="${part.id}">
+                            `);
                         });
 
-                        // Calculate prices
                         const advance = subtotal * 0.4;
                         const total = subtotal;
 
-                        // Update UI
                         $('#subtotal').text('$' + subtotal.toFixed(2));
                         $('#advance').text('$' + advance.toFixed(2));
                         $('#total').text('$' + total.toFixed(2));
@@ -221,11 +246,9 @@
                     }
                 }
 
-                // Form submission handler
                 $('#bike-order-form').on('submit', function(e) {
                     e.preventDefault();
 
-                    // Basic validation
                     if (Object.keys(selectedParts).length === 0) {
                         alert('Please select at least one part');
                         return false;
@@ -236,7 +259,6 @@
                         return false;
                     }
 
-                    // If validation passes, submit the form
                     this.submit();
                 });
             });
