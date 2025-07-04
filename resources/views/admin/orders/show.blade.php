@@ -57,6 +57,12 @@
                                                 <h4 class="h6 text-muted">Order Date</h4>
                                                 <p>{{ $order->created_at->format('F j, Y \a\t g:i A') }}</p>
                                             </div>
+                                            <div>
+                                                <h4 class="h6 text-muted">Expected Completion Order Date</h4>
+                                                <p>{{ \Carbon\Carbon::parse($order->expected_completion_date)->format('F j, Y \a\t g:i A') }}
+                                                </p>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>

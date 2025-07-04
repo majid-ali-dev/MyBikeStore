@@ -69,9 +69,9 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                @if ($order->delivery_deadline)
+                                                @if ($order->expected_completion_date)
                                                     <span
-                                                        class="text-success">{{ \Carbon\Carbon::parse($order->delivery_deadline)->format('M d, Y') }}</span>
+                                                        class="text-success">{{ \Carbon\Carbon::parse($order->expected_completion_date)->format('M d, Y') }}</span>
                                                 @else
                                                     <span class="text-muted">N/A</span>
                                                 @endif

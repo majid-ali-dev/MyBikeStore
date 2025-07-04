@@ -25,7 +25,8 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <h2 class="h5 mb-0">Order Summary</h2>
                                 <span class="badge bg-light text-dark">
-                                    Completed on {{ $order->updated_at->format('M d, Y') }}
+                                    Completed on
+                                    {{ \Carbon\Carbon::parse($order->expected_completion_date)->format('M d, Y') }}
                                 </span>
                             </div>
                         </div>
@@ -36,7 +37,8 @@
                                 <div class="col-md-6">
                                     <h6>Order Information</h6>
                                     <p><strong>Order Date:</strong> {{ $order->created_at->format('M d, Y') }}</p>
-                                    <p><strong>Completion Date:</strong> {{ $order->updated_at->format('M d, Y') }}</p>
+                                    <p><strong>Completion Date:</strong>
+                                        {{ \Carbon\Carbon::parse($order->expected_completion_date)->format('M d, Y') }}</p>
                                     <p><strong>Total Amount:</strong> ${{ number_format($order->total_amount, 2) }}</p>
                                 </div>
                                 <div class="col-md-6">
