@@ -181,7 +181,7 @@
                                                 Date:</label>
                                             <input type="date" name="expected_completion_date"
                                                 class="form-control form-control-sm"
-                                                value="{{ now()->addDays(7)->format('Y-m-d') }}" required>
+                                                value="{{ now()->addDays(30)->format('Y-m-d') }}" required>
                                         </div>
 
                                         <button type="submit" class="btn btn-success">
