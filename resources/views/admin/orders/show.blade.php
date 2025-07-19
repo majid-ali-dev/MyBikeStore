@@ -27,7 +27,7 @@
                                 <h2 class="h5 mb-0">Order Summary</h2>
                                 <div>
                                     <span
-                                        class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'danger') }} text-capitalize">
+                                        class="badge bg-{{ $order->status == 'completed' ? 'success' : ($order->status == 'pending' ? 'warning' : 'primary') }} text-capitalize">
                                         {{ $order->status }}
                                     </span>
                                     <span class="badge bg-{{ $order->payment_status ? 'success' : 'warning' }} ms-2">
@@ -57,12 +57,13 @@
                                                 <h4 class="h6 text-muted">Order Date</h4>
                                                 <p>{{ $order->created_at->format('F j, Y \a\t g:i A') }}</p>
                                             </div>
-                                            <div>
-                                                <h4 class="h6 text-muted">Expected Completion Order Date</h4>
-                                                <p>{{ \Carbon\Carbon::parse($order->expected_completion_date)->format('F j, Y \a\t g:i A') }}
-                                                </p>
-                                            </div>
-
+                                            @if ($order->expected_completion_date)
+                                                <div>
+                                                    <h4 class="h6 text-muted">Expected Completion Date</h4>
+                                                    <p>{{ \Carbon\Carbon::parse($order->expected_completion_date)->format('F j, Y \a\t g:i A') }}
+                                                    </p>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -174,7 +175,8 @@
                                 <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary">
                                     <i class="fas fa-arrow-left me-2"></i>Back to Orders
                                 </a>
-                                @if ($order->status != 'completed')
+
+                                @if ($order->status == 'pending')
                                     <form action="{{ route('admin.orders.update', $order->id) }}" method="POST"
                                         class="d-flex align-items-center gap-2">
                                         @csrf
@@ -183,11 +185,11 @@
 
                                         <div class="form-group mb-0">
                                             <label for="expected_completion_date" class="form-label mb-0 small">Expected
-                                                Completion
-                                                Date:</label>
+                                                Completion Date:</label>
                                             <input type="date" name="expected_completion_date"
                                                 class="form-control form-control-sm"
-                                                value="{{ now()->addDays(30)->format('Y-m-d') }}" required>
+                                                value="{{ old('expected_completion_date', now()->addDays(30)->format('Y-m-d')) }}"
+                                                required>
                                         </div>
 
                                         <button type="submit" class="btn btn-success">

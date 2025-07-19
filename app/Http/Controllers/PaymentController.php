@@ -111,7 +111,7 @@ class PaymentController extends Controller
             $order->update([
                 'payment_status' => true,
                 'stripe_payment_id' => $session->payment_intent,
-                'status' => 'processing'
+                'status' => 'pending'
             ]);
 
             // Prepare success message matching your layout

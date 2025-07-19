@@ -45,17 +45,17 @@ class CustomerController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function bikeBuilder()
+    function bikeBuilder()
     {
-        $categories = PartCategory::with(['parts' => function ($query) {
+    $categories = PartCategory::with(['parts' => function ($query) {
         $query->where('stock', '>', 0);
-        }])
-        ->get()
-        ->filter(function ($category) {
-            return $category->parts->count() > 0; // only keep categories that have parts
-        });
+    }])
+    ->get()
+    ->filter(function ($category) {
+        return $category->parts->count() > 0; // only keep categories that have parts
+    });
 
-        return view('customer.bike-builder', compact('categories'));
+    return view('customer.bike-builder', compact('categories'));
     }
 
 
@@ -77,59 +77,82 @@ class CustomerController extends Controller
      */
     public function submitBikeOrder(Request $request)
     {
-     $request->validate([
-         'selected_parts' => 'required|array',
-         'selected_parts.*' => 'exists:parts,id',
-         'shipping_address' => 'required|string',
-         'notes' => 'nullable|string'
-     ]);
+    $request->validate([
+        'selected_parts' => 'required|array',
+        'selected_parts.*' => 'exists:parts,id',
+        'shipping_address' => 'required|string',
+        'notes' => 'nullable|string'
+    ]);
 
-     try {
-         DB::beginTransaction();
+    try {
+        DB::beginTransaction();
 
-        $parts = Part::whereIn('id', $request->selected_parts)->get();
-        $totalAmount = $parts->sum('price');
+        // Get all categories that have parts in stock
+        $availableCategories = PartCategory::with(['parts' => function ($query) {
+            $query->where('stock', '>', 0);
+        }])
+        ->get()
+        ->filter(function ($category) {
+            return $category->parts->count() > 0;
+        });
+
+        // Get selected parts with their categories
+        $selectedParts = Part::whereIn('id', $request->selected_parts)
+            ->with('category')
+            ->get();
+
+        // Check if all categories are covered
+        $selectedCategoryIds = $selectedParts->pluck('category_id')->unique();
+        $availableCategoryIds = $availableCategories->pluck('id');
+
+        $missingCategories = $availableCategories->whereNotIn('id', $selectedCategoryIds);
+
+        if ($missingCategories->count() > 0) {
+            $missingCategoryNames = $missingCategories->pluck('name')->implode(', ');
+            throw new \Exception("Please select at least one part from the following categories: {$missingCategoryNames}");
+        }
+
+        $totalAmount = $selectedParts->sum('price');
         $advancePayment = $totalAmount * 0.4;
 
         $order = Order::create([
             'user_id' => Auth::id(),
             'total_amount' => $totalAmount,
             'status' => 'pending',
-            'payment_status' => false, // Will be true after payment
+            'payment_status' => false,
             'advance_payment' => $advancePayment,
             'shipping_address' => $request->shipping_address,
             'notes' => $request->notes
         ]);
 
-      foreach ($parts as $part) {
-      // Step 1: Check if part is in stock
-      if ($part->stock <= 0) {
-          throw new \Exception("Part '{$part->name}' is out of stock.");
-      }
+        foreach ($selectedParts as $part) {
+            // Check if part is in stock
+            if ($part->stock <= 0) {
+                throw new \Exception("Part '{$part->name}' is out of stock.");
+            }
 
-      // Step 2: Create Order Item
-      OrderItem::create([
-        'order_id' => $order->id,
-        'part_id' => $part->id,
-        'quantity' => 1,
-        'unit_price' => $part->price,
-        'part_image_path' => $part->image
-      ]);
+            // Create Order Item
+            OrderItem::create([
+                'order_id' => $order->id,
+                'part_id' => $part->id,
+                'quantity' => 1,
+                'unit_price' => $part->price,
+                'part_image_path' => $part->image
+            ]);
 
-     // Step 3: Decrement stock by 1
-     $part->decrement('stock');
-
+            // Decrement stock by 1
+            $part->decrement('stock');
         }
 
         DB::commit();
 
-        // Redirect to payment page instead of dashboard
+        // Redirect to payment page
         return redirect()->route('customer.payment', $order);
 
-     } catch (\Exception $e) {
-         DB::rollBack();
-         return back()->with('error', 'Error: '.$e->getMessage());
-     }
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Error: '.$e->getMessage());
+    }
     }
 
 
