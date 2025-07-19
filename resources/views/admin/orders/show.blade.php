@@ -181,22 +181,44 @@
                                         class="d-flex align-items-center gap-2">
                                         @csrf
                                         @method('PUT')
-                                        <input type="hidden" name="status" value="completed">
+                                        <input type="hidden" name="status" value="processing">
 
                                         <div class="form-group mb-0">
-                                            <label for="expected_completion_date" class="form-label mb-0 small">Expected
-                                                Completion Date:</label>
+                                            <label for="expected_completion_date" class="form-label mb-0 small">
+                                                Expected Completion Date:
+                                            </label>
                                             <input type="date" name="expected_completion_date"
                                                 class="form-control form-control-sm"
-                                                value="{{ old('expected_completion_date', now()->addDays(30)->format('Y-m-d')) }}"
+                                                value="{{ old('expected_completion_date', $order->expected_completion_date ?? now()->addDays(30)->format('Y-m-d')) }}"
                                                 required>
                                         </div>
+
+                                        <button type="submit" class="btn btn-primary mt-2">
+                                            <i class="fas fa-check-circle me-1"></i>Accept Order
+                                        </button>
+                                    </form>
+                                @elseif ($order->status == 'processing')
+                                    <form action="{{ route('admin.orders.update', $order->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="status" value="completed">
 
                                         <button type="submit" class="btn btn-success">
                                             <i class="fas fa-check-circle me-1"></i>Mark as Completed
                                         </button>
                                     </form>
+                                @elseif ($order->status == 'completed')
+                                    <form action="{{ route('admin.orders.update', $order->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="status" value="delivered">
+
+                                        <button type="submit" class="btn btn-info">
+                                            <i class="fas fa-truck me-1"></i>Order Delivered
+                                        </button>
+                                    </form>
                                 @endif
+
                             </div>
                         </div>
                     </div>

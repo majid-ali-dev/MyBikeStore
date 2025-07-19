@@ -266,25 +266,37 @@ class AdminController extends Controller
      */
     public function updateOrder(Request $request, Order $order)
     {
-    $request->validate([
-        'status' => 'required|in:pending,processing,completed,cancelled',
-        'expected_completion_date' => 'nullable|date'
-    ]);
+    $validationRules = [
+        'status' => 'required|in:pending,processing,completed,cancelled,delivered'
+    ];
+
+    // Only require date when changing from pending to processing
+    if ($order->status == 'pending' && $request->status == 'processing') {
+        $validationRules['expected_completion_date'] = 'required|date|after_or_equal:today';
+    } else {
+        $validationRules['expected_completion_date'] = 'nullable|date';
+    }
+
+    $validated = $request->validate($validationRules);
 
     try {
-        $order->update([
-            'status' => $request->status,
-            'expected_completion_date' => $request->expected_completion_date,
-        ]);
+        $order->status = $validated['status'];
+
+        // Only update date if it was provided
+        if (isset($validated['expected_completion_date'])) {
+            $order->expected_completion_date = $validated['expected_completion_date'];
+        }
+
+        $order->save();
 
         return redirect()->route('admin.orders.show', $order->id)
-            ->with('success', 'Order status and expected completion date updated successfully!');
+            ->with('success', 'Order status updated successfully!');
     } catch (\Exception $e) {
-        return back()->with('error', 'Failed to update order: ' . $e->getMessage());
+        return back()
+               ->withInput()
+               ->with('error', 'Failed to update order: ' . $e->getMessage());
     }
     }
-    
-
 
     /**
     * Display the details of a specific order.

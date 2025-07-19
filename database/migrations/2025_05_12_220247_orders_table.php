@@ -15,7 +15,7 @@ return new class extends Migration
        $table->id();
        $table->foreignId('user_id')->constrained('users');
        $table->decimal('total_amount', 10, 2);
-       $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
+       $table->enum('status', ['pending', 'processing', 'completed', 'delivered', 'cancelled'])->default('pending');
        $table->string('payment_method')->nullable();
        $table->boolean('payment_status')->default(false);
        $table->decimal('advance_payment', 10, 2)->default(0);

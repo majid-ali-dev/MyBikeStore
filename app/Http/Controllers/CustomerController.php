@@ -190,7 +190,7 @@ class CustomerController extends Controller
     {
         $orders = Auth::user()->orders()
             ->withCount('items')
-            ->whereIn('status', ['pending', 'processing'])
+            ->whereIn('status', ['pending', 'processing', 'completed'])
             ->latest()
             ->paginate(10);
 
@@ -206,7 +206,7 @@ class CustomerController extends Controller
     {
         $orders = Auth::user()->orders()
             ->withCount('items')
-            ->where('status', 'completed')
+            ->where('status', 'delivered')
             ->latest()
             ->paginate(10);
 

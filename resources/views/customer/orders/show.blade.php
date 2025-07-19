@@ -35,9 +35,38 @@
                             <div class="row mb-4">
                                 <div class="col-md-6">
                                     <h6>Order Information</h6>
-                                    <p><strong>Date:</strong> {{ $order->created_at->format('d M Y') }}</p>
+                                    <p><strong>Order Date:</strong> {{ $order->created_at->format('d M Y') }}</p>
                                     <p><strong>Total Amount:</strong> ${{ number_format($order->total_amount, 2) }}</p>
-                                    <p><strong>Advance Paid:</strong> ${{ number_format($order->advance_payment, 2) }}</p>
+                                    <p><strong>Advance Paid (40%):</strong> ${{ number_format($order->advance_payment, 2) }}
+                                    </p>
+
+                                    @if ($order->expected_completion_date)
+                                        @php
+                                            $daysRemaining = now()->diffInDays(
+                                                \Carbon\Carbon::parse($order->expected_completion_date),
+                                                false,
+                                            );
+                                            $textClass = 'text-success'; // Default color
+
+                                            if ($daysRemaining < 0) {
+                                                $textClass = 'text-danger'; // Overdue (red)
+                                            } elseif ($daysRemaining <= 3) {
+                                                $textClass = 'text-warning'; // Urgent (yellow/orange)
+                                            } elseif ($daysRemaining <= 7) {
+                                                $textClass = 'text-info'; // Approaching (blue)
+                                            }
+                                        @endphp
+
+                                        <p><strong>Estimated Completion Date: </strong>
+                                            <span class="text-primary fw-bold">
+                                                {{ \Carbon\Carbon::parse($order->expected_completion_date)->format('d M Y') }}
+                                            </span>
+                                        </p>
+                                    @else
+                                        <p><strong>Estimated Completion Date:</strong>
+                                            <span class="text-muted">To be confirmed</span>
+                                        </p>
+                                    @endif
                                 </div>
                                 <div class="col-md-6">
                                     <h6>Shipping Information</h6>

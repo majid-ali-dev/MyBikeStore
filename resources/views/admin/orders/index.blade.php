@@ -17,21 +17,25 @@
                     </div>
 
                     <div class="mb-3">
-                        {{-- Work Hare... --}}
                         <a href="{{ route('admin.orders.index', ['status' => 'pending']) }}"
                             class="btn {{ $status == 'pending' ? 'btn-warning' : 'btn-outline-warning' }} ms-2">
-                            Panding Orders
+                            Pending Orders
                         </a>
 
                         <a href="{{ route('admin.orders.index', ['status' => 'processing']) }}"
                             class="btn {{ $status == 'processing' ? 'btn-primary' : 'btn-outline-primary' }} ms-2">
                             Processing Orders
                         </a>
+
                         <a href="{{ route('admin.orders.index', ['status' => 'completed']) }}"
                             class="btn {{ $status == 'completed' ? 'btn-success' : 'btn-outline-success' }} ms-2">
                             Completed Orders
                         </a>
 
+                        <a href="{{ route('admin.orders.index', ['status' => 'delivered']) }}"
+                            class="btn {{ $status == 'delivered' ? 'btn-info' : 'btn-outline-info' }} ms-2">
+                            Delivered Orders
+                        </a>
                     </div>
 
                     @if ($orders->isEmpty())
