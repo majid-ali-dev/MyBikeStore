@@ -37,6 +37,8 @@ Route::middleware(['auth', 'admin:admin'])->prefix('admin')->group(function () {
     Route::get('/customers', [AdminController::class, 'customers'])->name('admin.customers');
     Route::get('/admin/orders', [AdminController::class, 'ordersList'])->name('admin.orders.index');
     Route::get('/admin/orders/{order}', [AdminController::class, 'showOrder'])->name('admin.orders.show');
+    Route::get('/orders/download-all-delivered', [AdminController::class, 'downloadAllDeliveredOrders'])
+    ->name('admin.orders.download_all_delivered');
 
 });
 

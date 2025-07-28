@@ -307,8 +307,52 @@ class AdminController extends Controller
     public function showOrder(Order $order)
     {
         $order->load(['user', 'items.part.category']);
-        return view('admin.orders.show', compact('order'));
+
+        // Check if order is delivered to show PDF button
+        $showPdfButton = $order->status === 'delivered';
+
+        return view('admin.orders.show', compact('order', 'showPdfButton'));
     }
+
+
+public function downloadAllDeliveredOrders()
+{
+    // Get all delivered orders with all related data
+    $orders = Order::with(['user', 'items.part.category'])
+        ->where('status', 'delivered')
+        ->orderBy('updated_at', 'desc')
+        ->get();
+
+    // Transform data for better PDF display
+    $ordersData = $orders->map(function($order) {
+        return [
+            'id' => $order->id,
+            'customer_name' => $order->user->name,
+            'customer_email' => $order->user->email ?? 'N/A',
+            'total_amount' => $order->total_amount,
+            'payment_status' => $order->payment_status ? 'Paid' : 'Pending',
+            'delivery_date' => $order->updated_at->format('M d, Y'),
+            'delivery_time' => $order->updated_at->format('H:i A'),
+            'items_count' => $order->items->count(),
+            'shipping_address' => $order->shipping_address,
+            'notes' => $order->notes ?? 'No notes',
+            'items_details' => $order->items->map(function($item) {
+                return $item->part->name . ' (Qty: ' . $item->quantity . ', Price: $' . number_format($item->unit_price, 2) . ')';
+            })->join(', '),
+            'categories' => $order->items->map(function($item) {
+                return $item->part->category->name ?? 'N/A';
+            })->unique()->join(', ')
+        ];
+    });
+
+    // Generate PDF
+    $pdf = \PDF::loadView('admin.orders.all_delivered_pdf', compact('ordersData'))
+        ->setPaper('a4', 'landscape'); // Landscape for better table display
+
+    // Download with filename
+    $filename = 'all_delivered_orders_' . now()->format('Y_m_d_H_i') . '.pdf';
+    return $pdf->download($filename);
+}
 
 
 }
