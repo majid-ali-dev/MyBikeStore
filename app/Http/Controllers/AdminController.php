@@ -9,6 +9,11 @@ use App\Models\PartCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use App\Mail\OrderCompletedMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+
+
 
 class AdminController extends Controller
 {
@@ -257,7 +262,7 @@ class AdminController extends Controller
         return view('admin.orders.index', compact('orders', 'status'));
     }
 
-     /**
+    /**
      * Update the specified order in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -266,37 +271,79 @@ class AdminController extends Controller
      */
     public function updateOrder(Request $request, Order $order)
     {
-    $validationRules = [
-        'status' => 'required|in:pending,processing,completed,cancelled,delivered'
-    ];
+        $validationRules = [
+            'status' => 'required|in:pending,processing,completed,cancelled,delivered'
+        ];
 
-    // Only require date when changing from pending to processing
-    if ($order->status == 'pending' && $request->status == 'processing') {
-        $validationRules['expected_completion_date'] = 'required|date|after_or_equal:today';
-    } else {
-        $validationRules['expected_completion_date'] = 'nullable|date';
-    }
-
-    $validated = $request->validate($validationRules);
-
-    try {
-        $order->status = $validated['status'];
-
-        // Only update date if it was provided
-        if (isset($validated['expected_completion_date'])) {
-            $order->expected_completion_date = $validated['expected_completion_date'];
+        // Only require date when changing from pending to processing
+        if ($order->status == 'pending' && $request->status == 'processing') {
+            $validationRules['expected_completion_date'] = 'required|date|after_or_equal:today';
+        } else {
+            $validationRules['expected_completion_date'] = 'nullable|date';
         }
 
-        $order->save();
+        $validated = $request->validate($validationRules);
 
-        return redirect()->route('admin.orders.show', $order->id)
-            ->with('success', 'Order status updated successfully!');
-    } catch (\Exception $e) {
-        return back()
-               ->withInput()
-               ->with('error', 'Failed to update order: ' . $e->getMessage());
-    }
-    }
+        try {
+            // Store previous status for comparison
+            $previousStatus = $order->status;
+
+            $order->status = $validated['status'];
+
+            // Only update date if it was provided
+            if (isset($validated['expected_completion_date'])) {
+            $order->expected_completion_date = $validated['expected_completion_date'];
+            }
+
+            $order->save();
+
+            // Send email when order is marked as completed
+            if ($previousStatus !== 'completed' && $validated['status'] === 'completed') {
+                try {
+                    // Load order with user relationship for email
+                    $order->load(['user', 'items.part.category']);
+
+                    // Check if user has email
+                    if ($order->user && $order->user->email) {
+                        Mail::to($order->user->email)->send(new OrderCompletedMail($order));
+
+                        // Log successful email
+                        Log::info('Order completion email sent successfully', [
+                            'order_id' => $order->id,
+                            'user_email' => $order->user->email,
+                            'user_name' => $order->user->name
+                        ]);
+
+                        return redirect()->route('admin.orders.show', $order->id)
+                            ->with('success', 'Order marked as completed! Email sent to customer.');
+                    } else {
+                        return redirect()->route('admin.orders.show', $order->id)
+                            ->with('success', 'Order marked as completed! (Customer email not available)');
+                    }
+
+                } catch (\Exception $emailException) {
+                    // Log email error but don't fail the order update
+                    Log::error('Failed to send order completion email', [
+                        'order_id' => $order->id,
+                    'error' => $emailException->getMessage()
+                    ]);
+    
+                    return redirect()->route('admin.orders.show', $order->id)
+                        ->with('success', 'Order marked as completed! (Email notification failed)');
+                }
+            }
+
+            // Regular success message for other status changes
+            return redirect()->route('admin.orders.show', $order->id)
+                ->with('success', 'Order status updated successfully!');
+
+        } catch (\Exception $e) {
+            return back()
+                   ->withInput()
+                   ->with('error', 'Failed to update order: ' . $e->getMessage());
+        }
+    }    
+
 
     /**
     * Display the details of a specific order.
