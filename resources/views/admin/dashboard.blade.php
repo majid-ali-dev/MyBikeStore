@@ -1,3 +1,7 @@
+@push('scripts')
+    <x-admin-loader />
+@endpush
+
 @extends('layouts.app')
 
 @section('content')
@@ -8,7 +12,8 @@
             <!-- Main Content -->
             <div class="col py-3">
                 <div class="container-fluid">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <div
+                        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">Admin Dashboard</h1>
                         <button class="btn btn-sm btn-danger d-md-none" id="sidebarToggle">
                             <i class="fas fa-bars"></i>
@@ -87,7 +92,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($customers as $customer)
+                                        @foreach ($customers as $customer)
                                             <tr>
                                                 <td>{{ $customer->id }}</td>
                                                 <td>{{ $customer->name }}</td>

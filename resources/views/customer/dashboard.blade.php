@@ -1,3 +1,7 @@
+@push('scripts')
+    <x-customer-loader />
+@endpush
+
 @extends('layouts.app')
 
 @section('content')
@@ -20,8 +24,8 @@
                     <!-- Welcome Card -->
                     <div class="card shadow mb-4">
                         <div class="card-body text-center py-4">
-                            <img src="{{ Auth::user()->avatar_url ?? 'https://via.placeholder.com/150' }}" alt="Profile"
-                                class="rounded-circle mb-3" width="100">
+                            {{-- <img src="{{ Auth::user()->avatar_url ?? 'https://via.placeholder.com/150' }}" alt="Profile"
+                                class="rounded-circle mb-3" width="100"> --}}
                             <h3>Welcome back, {{ Auth::user()->name }}!</h3>
                             <p class="text-muted">Ready to build your dream bike?</p>
                             <a href="{{ route('customer.bike-builder') }}" class="btn btn-primary mt-2">

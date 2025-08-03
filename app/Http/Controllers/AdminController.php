@@ -327,7 +327,7 @@ class AdminController extends Controller
                         'order_id' => $order->id,
                     'error' => $emailException->getMessage()
                     ]);
-    
+
                     return redirect()->route('admin.orders.show', $order->id)
                         ->with('success', 'Order marked as completed! (Email notification failed)');
                 }
@@ -342,7 +342,7 @@ class AdminController extends Controller
                    ->withInput()
                    ->with('error', 'Failed to update order: ' . $e->getMessage());
         }
-    }    
+    }
 
 
     /**
