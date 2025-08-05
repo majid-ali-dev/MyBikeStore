@@ -213,4 +213,61 @@ class CustomerController extends Controller
         return view('customer.orders.history', compact('orders'));
     }
 
+    public function showProfile()
+    {
+    $user = Auth::user();
+    return view('customer.dashboard', [
+        'stats' => [
+            'total_orders' => $user->orders()->count(),
+            'pending_orders' => $user->orders()->where('status', 'pending')->count(),
+            'completed_orders' => $user->orders()->where('status', 'completed')->count(),
+        ],
+        'recentOrders' => $user->orders()
+            ->withCount('items')
+            ->latest()
+            ->take(5)
+            ->get(),
+        'showProfileModal' => true // Flag to show profile modal
+    ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+    $user = Auth::user();
+
+    $request->validate([
+        'current_password' => 'required|current_password',
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255|unique:users,email,'.$user->id,
+        'phone' => 'nullable|string|max:20',
+        'new_password' => 'nullable|min:8|confirmed',
+        'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+    ]);
+
+    try {
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+
+        if ($request->new_password) {
+            $user->password = Hash::make($request->new_password);
+        }
+
+        if ($request->hasFile('profile_photo')) {
+            // Delete old photo if exists
+            if ($user->profile_photo_path) {
+                Storage::delete($user->profile_photo_path);
+            }
+            $user->profile_photo_path = $request->file('profile_photo')->store('profile-photos', 'public');
+        }
+
+        $user->save();
+
+        return redirect()->route('customer.dashboard')
+            ->with('success', 'Profile updated successfully!');
+    } catch (\Exception $e) {
+        return back()->with('error', 'Failed to update profile: '.$e->getMessage());
+    }
+    }
+
 }

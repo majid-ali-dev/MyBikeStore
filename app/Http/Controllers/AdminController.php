@@ -79,6 +79,48 @@ class AdminController extends Controller
         return view('admin.categories.create');
     }
 
+
+
+    public function editCategory(PartCategory $category)
+    {
+    return view('admin.categories.index', [
+        'categories' => PartCategory::withCount('parts')->paginate(10),
+        'editingCategory' => $category // Pass the category being edited
+    ]);
+    }
+
+    public function updateCategory(Request $request, PartCategory $category)
+    {
+    $request->validate([
+        'name' => 'required|string|max:255|unique:part_categories,name,'.$category->id,
+        'description' => 'nullable|string'
+    ]);
+
+    try {
+        $category->update($request->only('name', 'description'));
+        return redirect()->route('admin.categories.list')
+            ->with('success', 'Category updated successfully!');
+    } catch (\Exception $e) {
+        return back()->withInput()->with('error', 'Failed to update category: ' . $e->getMessage());
+    }
+    }
+
+    public function destroyCategory(PartCategory $category)
+    {
+    try {
+        // Check if category has parts before deleting
+        if ($category->parts()->exists()) {
+            return back()->with('error', 'Cannot delete category with associated parts.');
+        }
+
+        $category->delete();
+        return redirect()->route('admin.categories.list')
+            ->with('success', 'Category deleted successfully!');
+    } catch (\Exception $e) {
+        return back()->with('error', 'Failed to delete category: ' . $e->getMessage());
+    }
+    }
+
     /**
      * Store a newly created category in storage.
      *

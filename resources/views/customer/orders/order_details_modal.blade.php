@@ -1,34 +1,47 @@
 <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-gradient-primary text-white">
                 <h5 class="modal-title" id="orderModalLabel">Order Details #<span id="modalOrderId"></span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="row mb-4">
+                    <!-- Order Information -->
                     <div class="col-md-6">
-                        <h6>Order Information</h6>
-                        <p><strong>Date:</strong> <span id="orderDate"></span></p>
-                        <p><strong>Status:</strong> <span id="orderStatus" class="badge"></span></p>
-                        <p><strong>Total Amount:</strong> $<span id="orderTotal"></span></p>
+                        <h6 class="text-primary">Order Information</h6>
+                        <div class="card border-0 shadow-none">
+                            <div class="card-body p-2">
+                                <p class="mb-2"><strong>Date:</strong> <span id="orderDate"></span></p>
+                                <p class="mb-2"><strong>Status:</strong> <span id="orderStatus" class="badge"></span>
+                                </p>
+                                <p class="mb-0"><strong>Total Amount:</strong> $<span id="orderTotal"></span></p>
+                            </div>
+                        </div>
                     </div>
+                    <!-- Payment Information -->
                     <div class="col-md-6">
-                        <h6>Payment Information</h6>
-                        <p><strong>Advance Paid:</strong> $<span id="advancePaid"></span></p>
-                        <p><strong>Payment Status:</strong> <span id="paymentStatus" class="badge"></span></p>
+                        <h6 class="text-primary">Payment Information</h6>
+                        <div class="card border-0 shadow-none">
+                            <div class="card-body p-2">
+                                <p class="mb-2"><strong>Advance Paid:</strong> $<span id="advancePaid"></span></p>
+                                <p class="mb-0"><strong>Payment Status:</strong> <span id="paymentStatus"
+                                        class="badge"></span></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="card mb-4">
+                <!-- Parts Ordered -->
+                <div class="card shadow-sm mb-4">
                     <div class="card-header bg-light">
-                        <h6 class="mb-0">Parts Ordered</h6>
+                        <h6 class="mb-0 text-primary">Parts Ordered</h6>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-sm" id="orderPartsTable">
-                                <thead>
+                            <table class="table table-hover align-middle" id="orderPartsTable">
+                                <thead class="table-light">
                                     <tr>
                                         <th>Part</th>
                                         <th>Price</th>
@@ -43,13 +56,14 @@
                     </div>
                 </div>
 
-                <div class="card">
+                <!-- Shipping Details -->
+                <div class="card shadow-sm">
                     <div class="card-header bg-light">
-                        <h6 class="mb-0">Shipping Details</h6>
+                        <h6 class="mb-0 text-primary">Shipping Details</h6>
                     </div>
                     <div class="card-body">
-                        <p><strong>Address:</strong> <span id="shippingAddress"></span></p>
-                        <p><strong>Notes:</strong> <span id="orderNotes"></span></p>
+                        <p class="mb-2"><strong>Address:</strong> <span id="shippingAddress"></span></p>
+                        <p class="mb-0"><strong>Notes:</strong> <span id="orderNotes"></span></p>
                     </div>
                 </div>
             </div>

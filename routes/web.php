@@ -29,6 +29,9 @@ Route::middleware(['auth', 'admin:admin'])->prefix('admin')->group(function () {
     Route::get('/categories/{category}/parts', [AdminController::class, 'categoryParts'])->name('admin.categories.parts');
     Route::get('/categories', [AdminController::class, 'categoriesList'])->name('admin.categories.list');
     Route::get('/categories/{category}/parts/create', [AdminController::class, 'createPart'])->name('admin.parts.create');
+    Route::get('/categories/{category}/edit', [AdminController::class, 'editCategory'])->name('admin.categories.edit');
+    Route::put('/categories/{category}', [AdminController::class, 'updateCategory'])->name('admin.categories.update');
+    Route::delete('/categories/{category}', [AdminController::class, 'destroyCategory'])->name('admin.categories.destroy');
     Route::put('/orders/{order}', [AdminController::class, 'updateOrder'])->name('admin.orders.update');
     Route::post('/categories/{category}/parts', [AdminController::class, 'storePart'])->name('admin.parts.store');
     Route::put('/parts/{part}', [AdminController::class, 'updatePart'])->name('admin.parts.update');
@@ -59,6 +62,10 @@ Route::middleware(['auth', 'customer:customer'])->prefix('customer')->group(func
     Route::get('/customer/payment/success', [PaymentController::class, 'success'])->name('customer.payment.success');
     Route::get('/customer/payment/cancel', [PaymentController::class, 'cancel'])->name('customer.payment.cancel');
     Route::post('/stripe/webhook', '\Laravel\Cashier\Http\Controllers\WebhookController@handleWebhook');
+
+    // Profile
+    Route::get('/profile', [CustomerController::class, 'showProfile'])->name('customer.profile');
+    Route::put('/profile', [CustomerController::class, 'updateProfile'])->name('customer.profile.update');
 });
 
 //  Fallback Route - Handles all undefined routes
