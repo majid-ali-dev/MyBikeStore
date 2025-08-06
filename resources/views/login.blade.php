@@ -217,28 +217,6 @@
         </div>
     </div>
 
-    <!-- SweetAlert2 Script -->
-    {{-- <script>
-        @if (Session::has('alertType'))
-            Swal.fire({
-                icon: '{{ Session::get('alertType') }}',
-                title: '{{ Session::get('alertTitle') }}',
-                text: '{{ Session::get('alertMessage') }}',
-                confirmButtonColor: '#007bff',
-                timer: 5000,
-                timerProgressBar: true
-            });
-        @endif
-
-        @if ($errors->any())
-            Swal.fire({
-                icon: 'error',
-                title: 'Login Failed',
-                text: 'Invalid email or password',
-                confirmButtonColor: '#dc3545'
-            });
-        @endif
-    </script> --}}
 </body>
 
 </html>

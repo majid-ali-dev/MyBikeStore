@@ -62,10 +62,6 @@ Route::middleware(['auth', 'customer:customer'])->prefix('customer')->group(func
     Route::get('/customer/payment/success', [PaymentController::class, 'success'])->name('customer.payment.success');
     Route::get('/customer/payment/cancel', [PaymentController::class, 'cancel'])->name('customer.payment.cancel');
     Route::post('/stripe/webhook', '\Laravel\Cashier\Http\Controllers\WebhookController@handleWebhook');
-
-    // Profile
-    Route::get('/profile', [CustomerController::class, 'showProfile'])->name('customer.profile');
-    Route::put('/profile', [CustomerController::class, 'updateProfile'])->name('customer.profile.update');
 });
 
 //  Fallback Route - Handles all undefined routes

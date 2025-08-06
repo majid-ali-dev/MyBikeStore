@@ -38,8 +38,8 @@
                                             {{ $order->created_at->format('d M Y') }}</p>
                                         <p class="mb-2"><strong>Total Amount:</strong>
                                             ${{ number_format($order->total_amount, 2) }}</p>
-                                        <p class="mb-2"><strong>Advance Paid (40%):</strong>
-                                            ${{ number_format($order->advance_payment, 2) }}</p>
+                                        <p class="mb-2"><strong>Paid Total Amount:</strong>
+                                            ${{ number_format($order->total_amount, 2) }}</p>
                                         @if ($order->expected_completion_date)
                                             @php
                                                 $daysRemaining = now()->diffInDays(

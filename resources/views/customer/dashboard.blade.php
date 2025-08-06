@@ -1,3 +1,7 @@
+@push('scripts')
+    <x-customer-loader />
+@endpush
+
 @extends('layouts.app')
 
 @section('content')
