@@ -112,7 +112,20 @@
                         <!-- Order Components -->
                         <div class="card">
                             <div class="card-header bg-light">
-                                <h3 class="h6 mb-0">Order Components</h3>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3 class="h6 mb-0">Order Components</h3>
+                                    @if ($order->brand)
+                                        <div>
+                                            <span class="badge bg-primary me-2">
+                                                <i class="fas fa-motorcycle me-1"></i>
+                                                {{ $order->brand->brand_name }}
+                                                @if ($order->brand->model)
+                                                    ({{ $order->brand->model }})
+                                                @endif
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                             <div class="card-body">
                                 <!-- Tab Navigation -->
@@ -124,6 +137,8 @@
                                                 data-bs-target="#content-{{ Str::slug($category) }}" type="button"
                                                 role="tab" aria-controls="content-{{ Str::slug($category) }}"
                                                 aria-selected="{{ $loop->first ? 'true' : 'false' }}">
+                                                <i
+                                                    class="fas fa-{{ $category == 'Engine' ? 'cogs' : ($category == 'Tair' ? 'tire' : 'cog') }} me-1"></i>
                                                 {{ $category }}
                                             </button>
                                         </li>
@@ -137,7 +152,17 @@
                                             id="content-{{ Str::slug($category) }}" role="tabpanel"
                                             aria-labelledby="tab-{{ Str::slug($category) }}">
 
-                                            <h4 class="h5 mb-3 text-primary">{{ $category }}</h4>
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h4 class="h5 text-primary mb-0">
+                                                    <i
+                                                        class="fas fa-{{ $category == 'Engine' ? 'cogs' : ($category == 'Tair' ? 'tire' : 'cog') }} me-1"></i>
+                                                    {{ $category }}
+                                                </h4>
+                                                <small class="text-muted">
+                                                    {{ $items->count() }} {{ Str::plural('item', $items->count()) }}
+                                                </small>
+                                            </div>
+
                                             <div class="row g-4">
                                                 @foreach ($items as $item)
                                                     <div class="col-md-6 col-lg-4">
@@ -169,6 +194,11 @@
                                                                     <span
                                                                         class="badge bg-primary rounded-pill">{{ $item->quantity }}</span>
                                                                 </div>
+                                                            </div>
+                                                            <div class="card-footer bg-white">
+                                                                <small class="text-muted">
+                                                                    Part #: {{ $item->part->id }}
+                                                                </small>
                                                             </div>
                                                         </div>
                                                     </div>

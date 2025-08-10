@@ -26,11 +26,27 @@
                     <span>Dashboard</span>
                 </a>
             </li>
+            <!-- Create Bike Link in Sidebar -->
+            <li class="nav-item">
+                <a href="{{ route('admin.bikes.create') }}"
+                    class="nav-link {{ request()->routeIs('admin.bikes.create') ? 'active' : '' }}">
+                    <i class="fas fa-motorcycle"></i>
+                    <span>Create Bike</span>
+                </a>
+            </li>
             <li class="nav-item">
                 <a href="{{ route('admin.categories.create') }}"
                     class="nav-link {{ request()->routeIs('admin.categories.create') ? 'active' : '' }}">
-                    <i class="fas fa-plus-circle"></i>
+                    <i class="fas fa-th-list"></i> {{-- icon for category --}}
                     <span>Create Category</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('admin.parts.create') }}"
+                    class="nav-link {{ request()->routeIs('admin.parts.create') ? 'active' : '' }}">
+                    <i class="fas fa-cogs"></i> {{-- icon for parts --}}
+                    <span>Create Part</span>
                 </a>
             </li>
             <li class="nav-item">

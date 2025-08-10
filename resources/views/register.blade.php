@@ -5,27 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Create Account</title>
+    <title>MyBikeStore - Create Account</title>
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- SweetAlert2 CSS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
-            background: url("{{ asset('images/istockphot6.jpg') }}") center center / cover no-repeat fixed;
+            /* background: url("{{ asset('images/istockphot6.jpg') }}") center center / cover no-repeat fixed; */
             position: relative;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
         }
 
         body::before {
             content: "";
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.6);
-            z-index: -1;
+            z-index: 0;
         }
 
         .container {
@@ -34,114 +36,88 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100%;
-            padding: 15px;
-            margin: 0;
-            box-sizing: border-box;
+            min-height: 100vh;
+            padding: 20px 15px;
+            color: white;
         }
 
         .card {
             background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.2);
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             max-width: 420px;
             width: 100%;
             padding: 20px;
-            margin: 0 auto;
             text-align: center;
-            overflow: auto;
-            max-height: 95vh;
+            margin: auto;
         }
 
         .card-header {
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            margin-bottom: 20px;
         }
 
-        .card-header img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        .card-header h3 {
+        .card-header h4 {
+            margin-bottom: 8px;
             font-size: 24px;
-            margin: 10px 0 5px 0;
             color: #333;
         }
 
         .card-header p {
             font-size: 14px;
             color: #555;
-            margin: 0 0 10px 0;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
         }
 
         .form-label {
             font-weight: bold;
             color: #333;
-            text-align: start;
             display: block;
             margin-bottom: 5px;
         }
 
-        .dec {
-            text-align: start;
-            margin-bottom: 15px;
-        }
-
-        .form-control,
-        .form-select {
-            width: 93%;
-            padding: 10px;
-            margin-bottom: 8px;
+        .form-control {
+            width: 100%;
             border: 1px solid #ccc;
             border-radius: 5px;
+            padding: 10px;
             font-size: 14px;
+            box-sizing: border-box;
         }
 
-        .form-select {
-            width: 100%;
-            background-color: white;
-            cursor: pointer;
-        }
-
-        .form-select:focus {
+        .form-control:focus {
             border-color: #007bff;
             outline: none;
             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-        }
-
-        .invalid-feedback {
-            color: #dc3545;
-            font-size: 12px;
-            margin-top: 4px;
-            text-align: left;
         }
 
         .is-invalid {
             border-color: #dc3545;
         }
 
-        .form-check-label {
-            font-size: 14px;
-            color: #333;
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            display: block;
         }
 
         .btn-primary {
-            width: 100%;
-            padding: 10px;
             background-color: #007bff;
             border: none;
             color: white;
-            font-size: 16px;
+            padding: 10px;
+            width: 100%;
             border-radius: 5px;
+            font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            margin-top: 10px;
         }
 
         .btn-primary:hover {
@@ -164,11 +140,11 @@
         }
 
         .alert {
-            padding: 15px;
-            margin-bottom: 20px;
+            padding: 12px;
+            margin-bottom: 15px;
             border-radius: 5px;
             font-size: 14px;
-            font-weight: bold;
+            text-align: left;
         }
 
         .alert-success {
@@ -183,27 +159,26 @@
             border: 1px solid #f5c6cb;
         }
 
-        .ar {
-            padding: 10px;
-            margin: 10px;
-            font-size: 14px;
+        .acc {
+            color: black;
         }
 
+        /* Creator section styling */
         .creator {
             display: block;
-            margin-top: 10px;
+            margin-top: 15px;
             font-size: 12px;
             text-align: center;
             color: #f8f9fa;
             font-weight: 500;
             background: rgba(0, 0, 0, 0.7);
-            padding: 10px 22px;
+            padding: 7px 12px;
             border-radius: 5px;
             width: fit-content;
             margin-left: auto;
             margin-right: auto;
             box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-            line-height: 1.5;
+            line-height: 1.3;
         }
 
         .creator span {
@@ -217,14 +192,6 @@
             transition: all 0.3s ease;
             cursor: pointer;
         }
-
-        /* Ensure proper scrolling for small screens */
-        @media (max-height: 800px) {
-            .card {
-                max-height: 90vh;
-                overflow-y: auto;
-            }
-        }
     </style>
 </head>
 
@@ -232,7 +199,10 @@
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h3>Create Account</h3>
+                <span style="color:#db4a39">
+                    <h1><i class="fas fa-motorcycle me-2"></i></h1>
+                </span>
+                <h4>MyBikeStore</h4>
                 <p>Fill in the details to get started</p>
 
                 <!-- Success/Error Messages -->
@@ -254,7 +224,7 @@
                     @csrf
 
                     <!-- Name Field -->
-                    <div class="dec">
+                    <div class="form-group">
                         <label class="form-label">Full Name</label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
                             name="name" value="{{ old('name') }}" placeholder="Enter your name" required>
@@ -264,7 +234,7 @@
                     </div>
 
                     <!-- Email Field -->
-                    <div class="dec">
+                    <div class="form-group">
                         <label class="form-label">Email Address</label>
                         <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
                             name="email" value="{{ old('email') }}" placeholder="Enter your email" required>
@@ -274,10 +244,10 @@
                     </div>
 
                     <!-- Password Field -->
-                    <div class="dec">
+                    <div class="form-group">
                         <label class="form-label">Password</label>
                         <input type="password" class="form-control @error('password') is-invalid @enderror"
-                            id="password" name="password" placeholder="Enter your password (min 8 characters)"
+                            id="password" name="password" placeholder="Enter your password (min 5 characters)"
                             required>
                         @error('password')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -285,15 +255,15 @@
                     </div>
 
                     <!-- Password Confirmation -->
-                    <div class="dec">
+                    <div class="form-group">
                         <label class="form-label">Confirm Password</label>
                         <input type="password" class="form-control" id="password_confirmation"
                             name="password_confirmation" placeholder="Confirm your password" required>
                     </div>
 
                     <!-- Phone Field -->
-                    <div class="dec">
-                        <label class="form-label">Phone Number (Optional)</label>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
                         <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone"
                             name="phone" value="{{ old('phone') }}" placeholder="Enter your phone number">
                         @error('phone')
@@ -302,22 +272,22 @@
                     </div>
 
                     <!-- Address Field -->
-                    <div class="dec">
-                        <label class="form-label">Address (Optional)</label>
+                    <div class="form-group">
+                        <label class="form-label">Complete Address</label>
                         <textarea class="form-control @error('address') is-invalid @enderror" id="address" name="address"
-                            placeholder="Enter your address">{{ old('address') }}</textarea>
+                            placeholder="Enter your address" rows="3">{{ old('address') }}</textarea>
                         @error('address')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary mt-3">Register</button>
+                    <button type="submit" class="btn-primary">Register</button>
                 </form>
             </div>
 
             <div class="card-footer">
-                <small class="ar">Already have an account? <a href="{{ route('login') }}">Login here</a></small>
+                <small class="acc">Already have an account? <a href="{{ route('login') }}">Login here</a></small>
             </div>
         </div>
     </div>

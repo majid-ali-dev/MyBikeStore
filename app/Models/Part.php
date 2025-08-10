@@ -100,4 +100,12 @@ class Part extends Model
         // Check file existence in local storage
         return Storage::disk('public')->exists($this->image);
     }
+
+
+    // In App\Models\PartCategory.php
+public function getRouteKeyName()
+{
+    return 'id'; // by default
+}
+
 }

@@ -12,13 +12,22 @@
                     <i class="fas fa-bars"></i>
                 </button>
 
-                <!-- Page Header -->
+                <!-- Alternative: More Compact Version -->
                 <div
                     class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h2>Parts for Category: {{ $category->name }}</h2>
-                    <a href="{{ route('admin.parts.create', $category) }}" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Add New Part
-                    </a>
+                    <div>
+                        <h2 class="mb-0">
+                            <i class="fas fa-motorcycle me-2 text-primary"></i>
+                            Parts List —
+                            <span class="text-primary fw-bold">{{ $category->bike->brand_name }}</span>
+                            <small class="text-muted">/ Category:</small>
+                            <span class="text-dark fw-semibold">{{ $category->name }}</span>
+                        </h2>
+                        <p class="text-muted small mb-0 mt-1">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Manage and organize parts for this specific category
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Parts Table -->
@@ -63,13 +72,13 @@
                                                 <td>
                                                     <div class="btn-group" role="group">
                                                         <!-- View Button -->
-                                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal"
+                                                        <button class="btn btn-sm btn-info me-1" data-bs-toggle="modal"
                                                             data-bs-target="#viewPartModal-{{ $part->id }}">
                                                             <i class="fas fa-eye"></i>
                                                         </button>
 
                                                         <!-- Edit Button -->
-                                                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                                        <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal"
                                                             data-bs-target="#editPartModal-{{ $part->id }}">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
@@ -80,6 +89,7 @@
                                                             <i class="fas fa-trash"></i>
                                                         </button>
                                                     </div>
+
                                                 </td>
                                             </tr>
                                         @endforeach

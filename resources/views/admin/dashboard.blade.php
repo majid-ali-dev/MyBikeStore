@@ -24,7 +24,8 @@
 
                 <!-- Dashboard Cards -->
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <!-- Customers Card -->
+                    <div class="col-md-3">
                         <div class="card bg-primary text-white h-100">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -40,7 +41,25 @@
                         </div>
                     </div>
 
-                    <div class="col-md-4">
+                    <!-- Brands Card -->
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-uppercase">Total Brands</h6>
+                                        <h2 class="mb-0">{{ $totalBikes }}</h2>
+                                    </div>
+                                    <div class="icon icon-shape bg-white text-warning rounded-circle">
+                                        <i class="fas fa-motorcycle"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Categories Card -->
+                    <div class="col-md-3">
                         <div class="card bg-success text-white h-100">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -56,7 +75,9 @@
                         </div>
                     </div>
 
-                    <div class="col-md-4">
+
+                    <!-- Parts Card -->
+                    <div class="col-md-3">
                         <div class="card bg-info text-white h-100">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">

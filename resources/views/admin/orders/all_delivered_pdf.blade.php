@@ -163,11 +163,12 @@
                     <th style="width: 8%;">Amount</th>
                     <th style="width: 7%;">Payment</th>
                     <th style="width: 9%;">Delivery Date</th>
+                    <th style="width: 8%;">Bike Brand</th>
                     <th style="width: 5%;">Items</th>
-                    <th style="width: 18%;">Items Details</th>
+                    <th style="width: 15%;">Items Details</th>
                     <th style="width: 10%;">Categories</th>
-                    <th style="width: 18%;">Shipping Address</th>
-                    <th style="width: 7%;">Notes</th>
+                    <th style="width: 15%;">Shipping Address</th>
+                    <th style="width: 5%;">Notes</th>
                 </tr>
             </thead>
             <tbody>
@@ -199,6 +200,13 @@
 
                         <td class="text-center">
                             <span
+                                style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 3px; font-size: 6px;">
+                                {{ $order['brand_info'] }}
+                            </span>
+                        </td>
+
+                        <td class="text-center">
+                            <span
                                 style="background: #007bff; color: white; padding: 2px 6px; border-radius: 10px; font-size: 6px;">
                                 {{ $order['items_count'] }}
                             </span>
@@ -217,7 +225,7 @@
                         </td>
 
                         <td>
-                            <small>{{ Str::limit($order['notes'], 50) }}</small>
+                            <small>{{ Str::limit($order['notes'], 30) }}</small>
                         </td>
                     </tr>
                 @endforeach

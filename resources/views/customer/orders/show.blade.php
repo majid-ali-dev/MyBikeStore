@@ -76,6 +76,18 @@
                                     <div class="card-body p-2">
                                         <p class="mb-2"><strong>Address:</strong> {{ $order->shipping_address }}</p>
                                         <p class="mb-0"><strong>Notes:</strong> {{ $order->notes ?? 'None' }}</p>
+                                        @php
+                                            // Get unique brand names from all parts in the order
+                                            $brands = $order->items
+                                                ->map(function ($item) {
+                                                    return $item->part->category->bike->brand_name ?? null;
+                                                })
+                                                ->filter()
+                                                ->unique()
+                                                ->implode(', ');
+                                        @endphp
+
+                                        <p class="mb-0"><strong>Brand:</strong> {{ $brands ?: 'Not specified' }}</p>
                                     </div>
                                 </div>
                             </div>

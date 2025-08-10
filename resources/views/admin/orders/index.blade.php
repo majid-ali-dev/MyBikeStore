@@ -54,6 +54,7 @@
                                         <tr>
                                             <th>Order ID</th>
                                             <th>Customer</th>
+                                            <th>Brand</th>
                                             <th>Total Amount</th>
                                             <th>Status</th>
                                             <th>Payment</th>
@@ -66,6 +67,10 @@
                                             <tr>
                                                 <td>{{ $order->id }}</td>
                                                 <td>{{ $order->user->name }}</td>
+                                                <td>
+                                                    {{ $order->brand ? $order->brand->brand_name . ' / Model: ' . $order->brand->model : 'N/A' }}
+                                                </td>
+
                                                 <td>${{ number_format($order->total_amount, 2) }}</td>
                                                 <td>
                                                     <span

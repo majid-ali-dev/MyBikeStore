@@ -12,6 +12,14 @@
                     <i class="fas fa-bars"></i>
                 </button>
 
+                <!-- Brand Selection Info  -->
+                <div class="alert alert-info mb-4">
+                    <strong>Selected Brand:</strong> {{ $selectedBrand->brand_name }}
+                    <a href="{{ route('customer.bike-builder') }}" class="float-end btn btn-sm btn-outline-primary">
+                        Change Brand
+                    </a>
+                </div>
+
                 <!-- Page Header -->
                 <div
                     class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -59,7 +67,7 @@
                                                                 {{ Str::limit($part->description, 80) }}
                                                             </p>
                                                             <div class="d-flex justify-content-between align-items-center">
-                                                                <span class="text-primary fw-bold">
+                                                                <span class="text-danger fw-bold">
                                                                     ${{ number_format($part->price, 2) }}
                                                                 </span>
                                                                 <button class="btn btn-sm add-part-btn"
@@ -280,7 +288,7 @@
                         const remaining = totalCategories - selectedCategoriesCount;
                         $('#submit-order-btn').html(
                             `<i class="fas fa-exclamation-circle me-2"></i>Select ${remaining} more category${remaining > 1 ? 'ies' : 'y'}`
-                            );
+                        );
                     }
                 } else {
                     $('#selected-parts-container').html(`

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bike;
 use App\Models\Order;
 use App\Models\Part;
 use App\Models\User;
@@ -12,22 +13,26 @@ use Illuminate\Support\Facades\DB;
 use App\Mail\OrderCompletedMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
-
-
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard Methods
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Display the admin dashboard with statistics.
-     *
-     * This method fetches the total number of customers, categories, and parts,
-     * and displays them on the admin dashboard.
+     * Display the admin dashboard with statistics and recent customers.
+     * Shows total counts for customers, bikes, categories, and parts.
      *
      * @return \Illuminate\View\View
      */
     public function index()
     {
         $totalCustomers = User::where('role', 'customer')->count();
+        $totalBikes = Bike::count();
         $totalCategories = PartCategory::count();
         $totalParts = Part::count();
 
@@ -36,17 +41,22 @@ class AdminController extends Controller
 
         return view('admin.dashboard', compact(
             'totalCustomers',
+            'totalBikes',
             'totalCategories',
             'totalParts',
             'customers'
         ));
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Customer Management Methods
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Display a paginated list of customers with search functionality.
-     *
-     * This method allows searching customers by name, email, or phone number.
-     * It returns a paginated list of customers with their order counts.
+     * Allows searching customers by name, email, or phone number.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View
@@ -69,62 +79,74 @@ class AdminController extends Controller
         return view('admin.customers.index', compact('customers'));
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Bike Management Methods
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Display the form for creating a new category.
+     * Show the form for creating a new bike brand/model.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function createBike()
+    {
+        return view('admin.bikes.create');
+    }
+
+    /**
+     * Store a newly created bike in the database.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeBike(Request $request)
+    {
+        $request->validate([
+            'brand_name' => 'required|string|max:255',
+            'model' => 'required|string|max:255',
+        ]);
+
+        Bike::create([
+            'brand_name' => $request->brand_name,
+            'model' => $request->model,
+        ]);
+
+        return redirect()->route('admin.categories.create')->with('success', 'Bike created successfully.');
+    }
+
+    /**
+     * Get categories for a specific bike (AJAX endpoint).
+     *
+     * @param \App\Models\Bike $bike
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getBikeCategories(Bike $bike)
+    {
+        return response()->json($bike->categories);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Category Management Methods
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Display the form for creating a new part category.
      *
      * @return \Illuminate\View\View
      */
     public function createCategory()
     {
-        return view('admin.categories.create');
-    }
-
-
-
-    public function editCategory(PartCategory $category)
-    {
-    return view('admin.categories.index', [
-        'categories' => PartCategory::withCount('parts')->paginate(10),
-        'editingCategory' => $category // Pass the category being edited
-    ]);
-    }
-
-    public function updateCategory(Request $request, PartCategory $category)
-    {
-    $request->validate([
-        'name' => 'required|string|max:255|unique:part_categories,name,'.$category->id,
-        'description' => 'nullable|string'
-    ]);
-
-    try {
-        $category->update($request->only('name', 'description'));
-        return redirect()->route('admin.categories.list')
-            ->with('success', 'Category updated successfully!');
-    } catch (\Exception $e) {
-        return back()->withInput()->with('error', 'Failed to update category: ' . $e->getMessage());
-    }
-    }
-
-    public function destroyCategory(PartCategory $category)
-    {
-    try {
-        // Check if category has parts before deleting
-        if ($category->parts()->exists()) {
-            return back()->with('error', 'Cannot delete category with associated parts.');
-        }
-
-        $category->delete();
-        return redirect()->route('admin.categories.list')
-            ->with('success', 'Category deleted successfully!');
-    } catch (\Exception $e) {
-        return back()->with('error', 'Failed to delete category: ' . $e->getMessage());
-    }
+        $bikes = Bike::all();
+        return view('admin.categories.create', compact('bikes'));
     }
 
     /**
-     * Store a newly created category in storage.
-     *
-     * This method validates the request data and creates a new category.
+     * Store a newly created category in the database.
+     * Validates uniqueness within the same bike brand.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -132,17 +154,140 @@ class AdminController extends Controller
     public function storeCategory(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:part_categories,name',
-            'description' => 'nullable|string'
+            'bike_id' => 'required|exists:bikes,id',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('part_categories')->where(function ($query) use ($request) {
+                    return $query->where('bike_id', $request->bike_id);
+                }),
+            ],
+            'description' => 'nullable|string',
         ]);
 
         try {
-            PartCategory::create($request->only('name', 'description'));
-            return redirect()->route('admin.dashboard')->with('success', 'Category added successfully!');
+            PartCategory::create([
+                'bike_id' => $request->bike_id,
+                'name' => $request->name,
+                'description' => $request->description,
+            ]);
+
+            return redirect()->route('admin.parts.create')->with('success', 'Category added successfully!');
         } catch (\Exception $e) {
             return back()->withInput()->with('error', 'Failed to add category: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Display all categories grouped by bike brand and model.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function categoriesList()
+    {
+        $categories = PartCategory::with(['bike', 'parts'])
+            ->get()
+            ->groupBy(function ($category) {
+                $brand = $category->bike->brand_name ?? 'Unknown';
+                $model = $category->bike->model ?? 'N/A';
+                return "{$brand} / Model: {$model}";
+            });
+
+        return view('admin.categories.index', compact('categories'));
+    }
+
+    /**
+     * Show the form for editing a specific category.
+     *
+     * @param \App\Models\PartCategory $category
+     * @return \Illuminate\View\View
+     */
+    public function editCategory(PartCategory $category)
+    {
+        $groupedCategories = PartCategory::with(['bike', 'parts'])
+            ->get()
+            ->groupBy(function ($cat) {
+                return $cat->bike->brand_name ?? 'Unknown';
+            });
+
+        return view('admin.categories.index', [
+            'categories' => $groupedCategories,
+            'editingCategory' => $category,
+        ]);
+    }
+
+    /**
+     * Update the specified category in the database.
+     * Prevents duplicate category names within the same bike brand.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\PartCategory $category
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateCategory(Request $request, PartCategory $category)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        // Check if category name already exists in the same brand (bike_id), but skip current category
+        $duplicate = PartCategory::where('bike_id', $category->bike_id)
+            ->where('name', $request->name)
+            ->where('id', '!=', $category->id)
+            ->exists();
+
+        if ($duplicate) {
+            return back()->withInput()->with('error', 'This category name already exists under the same brand.');
+        }
+
+        try {
+            $category->update([
+                'name' => $request->name,
+                'description' => $request->description,
+            ]);
+
+            return redirect()->route('admin.categories.list')
+                ->with('success', 'Category updated successfully!');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Failed to update category: ' . $e->getMessage());
+        }
+    }
+
+
+    /**
+    * Delete the specified category from the database.
+    * Prevents deletion if category has associated parts.
+    *
+    * @param \App\Models\PartCategory $category
+    * @return \Illuminate\Http\RedirectResponse
+    */
+    public function destroyCategory(PartCategory $category)
+    {
+        // Check if category has any parts
+        if ($category->parts()->count() > 0) {
+            return back()->with('error', 'Cannot delete category that contains parts. Please remove all parts first.');
+        }
+
+        try {
+            $categoryName = $category->name;
+            $category->delete();
+
+            return redirect()->route('admin.categories.list')
+            ->with('success', "Category '{$categoryName}' has been deleted successfully!");
+    
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to delete category: ' . $e->getMessage());
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Parts Management Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Display a paginated list of parts for a specific category.
@@ -157,34 +302,20 @@ class AdminController extends Controller
     }
 
     /**
-     * Display a paginated list of categories with their part counts.
+     * Display the form for creating a new part.
+     * Shows all bikes with their associated categories.
      *
      * @return \Illuminate\View\View
      */
-    public function categoriesList()
+    public function createPart()
     {
-        $categories = PartCategory::withCount(['parts' => function($query) {
-           $query->select(DB::raw('count(*)'));
-        }])->paginate(10);
-
-        return view('admin.categories.index', compact('categories'));
+        $bikes = Bike::with('categories')->get();
+        return view('admin.parts.create', compact('bikes'));
     }
 
     /**
-     * Display the form for creating a new part within a specific category.
-     *
-     * @param \App\Models\PartCategory $category
-     * @return \Illuminate\View\View
-     */
-    public function createPart(PartCategory $category)
-    {
-        return view('admin.parts.create', compact('category'));
-    }
-
-    /**
-     * Store a newly created part in storage.
-     *
-     * This method validates the request data, handles image upload, and creates a new part.
+     * Store a newly created part in the database.
+     * Validates uniqueness within the same brand and category, handles image upload.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -192,6 +323,7 @@ class AdminController extends Controller
     public function storePart(Request $request)
     {
         $request->validate([
+            'bike_id' => 'required|exists:bikes,id',
             'category_id' => 'required|exists:part_categories,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -201,12 +333,25 @@ class AdminController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:3048',
         ]);
 
-        $imagePath = null;
+        // Check for duplicate part name under same brand and category
+        $duplicate = Part::where('name', $request->name)
+            ->where('category_id', $request->category_id)
+            ->whereHas('category', function ($query) use ($request) {
+                $query->where('bike_id', $request->bike_id);
+            })
+            ->exists();
 
+        if ($duplicate) {
+            return back()->withInput()->with('error', 'Part with the same name already exists under the selected brand and category.');
+        }
+
+        // Handle image upload
+        $imagePath = null;
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('parts_images', 'public');
         }
 
+        // Save part
         Part::create([
             'category_id' => $request->category_id,
             'name' => $request->name,
@@ -217,13 +362,13 @@ class AdminController extends Controller
             'image' => $imagePath,
         ]);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Part added successfully!');
+        return redirect()->route('admin.parts.create')
+            ->with('success', 'Part added successfully!');
     }
 
     /**
-     * Update the specified part in storage.
-     *
-     * This method validates the request data, handles image upload, and updates the part.
+     * Update the specified part in the database.
+     * Handles image replacement and validates uniqueness within category.
      *
      * @param \Illuminate\Http\Request $request
      * @param \App\Models\Part $part
@@ -241,10 +386,19 @@ class AdminController extends Controller
         ]);
 
         try {
+            // Check duplicate name within same category
+            $existingPart = Part::where('name', $request->name)
+                ->where('category_id', $part->category_id)
+                ->where('id', '!=', $part->id)
+                ->first();
+
+            if ($existingPart) {
+                return back()->with('error', 'Part with this name already exists in this category.')->withInput();
+            }
+
             $partData = $request->except('image');
 
             if ($request->hasFile('image')) {
-                // Delete old image if exists
                 if ($part->image) {
                     Storage::disk('public')->delete($part->image);
                 }
@@ -256,14 +410,13 @@ class AdminController extends Controller
             return redirect()->route('admin.categories.parts', $part->category_id)
                 ->with('success', 'Part updated successfully!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to update part: ' . $e->getMessage());
+            return back()->with('error', 'Failed to update part: ' . $e->getMessage())->withInput();
         }
     }
 
     /**
-     * Remove the specified part from storage.
-     *
-     * This method deletes the part and its associated image if it exists.
+     * Remove the specified part from the database.
+     * Deletes associated image file if it exists.
      *
      * @param \App\Models\Part $part
      * @return \Illuminate\Http\RedirectResponse
@@ -286,29 +439,53 @@ class AdminController extends Controller
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Orders Management Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
-     * Display a paginated list of orders with their details.
+     * Display a paginated list of orders filtered by status.
+     * Default status is 'processing' if not specified.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View
      */
     public function ordersList(Request $request)
     {
-        $status = $request->get('status', 'processing'); // Default to processing
+        $status = $request->get('status', 'processing');
 
-        $orders = Order::with(['user', 'items.part'])
-                ->where('status', $status)
-                ->paginate(10);
+        $orders = Order::with('brand')
+            ->where('status', $status)
+            ->paginate(10);
 
         return view('admin.orders.index', compact('orders', 'status'));
     }
 
     /**
-     * Update the specified order in storage.
+     * Display the details of a specific order.
+     * Shows complete order information including customer and parts details.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Order  $order
+     * @param \App\Models\Order $order
+     * @return \Illuminate\View\View
+     */
+    public function showOrder(Order $order)
+    {
+        $order->load(['user', 'items.part.category', 'brand']);
+
+        // Check if order is delivered to show PDF button
+        $showPdfButton = $order->status === 'delivered';
+
+        return view('admin.orders.show', compact('order', 'showPdfButton'));
+    }
+
+    /**
+     * Update the specified order status in the database.
+     * Sends email notification when order is marked as completed.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Order $order
      * @return \Illuminate\Http\RedirectResponse
      */
     public function updateOrder(Request $request, Order $order)
@@ -334,7 +511,7 @@ class AdminController extends Controller
 
             // Only update date if it was provided
             if (isset($validated['expected_completion_date'])) {
-            $order->expected_completion_date = $validated['expected_completion_date'];
+                $order->expected_completion_date = $validated['expected_completion_date'];
             }
 
             $order->save();
@@ -367,7 +544,7 @@ class AdminController extends Controller
                     // Log email error but don't fail the order update
                     Log::error('Failed to send order completion email', [
                         'order_id' => $order->id,
-                    'error' => $emailException->getMessage()
+                        'error' => $emailException->getMessage()
                     ]);
 
                     return redirect()->route('admin.orders.show', $order->id)
@@ -381,67 +558,54 @@ class AdminController extends Controller
 
         } catch (\Exception $e) {
             return back()
-                   ->withInput()
-                   ->with('error', 'Failed to update order: ' . $e->getMessage());
+                ->withInput()
+                ->with('error', 'Failed to update order: ' . $e->getMessage());
         }
     }
 
-
     /**
-    * Display the details of a specific order.
-    *
-    * @param \App\Models\Order $order
-    * @return \Illuminate\View\View
-    */
-    public function showOrder(Order $order)
+     * Download all delivered orders as a PDF report.
+     * Generates comprehensive report with customer and order details.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function downloadAllDeliveredOrders()
     {
-        $order->load(['user', 'items.part.category']);
+        // Get all delivered orders with all related data including brand
+        $orders = Order::with(['user', 'items.part.category', 'brand'])
+            ->where('status', 'delivered')
+            ->orderBy('updated_at', 'desc')
+            ->get();
 
-        // Check if order is delivered to show PDF button
-        $showPdfButton = $order->status === 'delivered';
+        // Transform data for better PDF display
+        $ordersData = $orders->map(function($order) {
+            return [
+                'id' => $order->id,
+                'customer_name' => $order->user->name,
+                'customer_email' => $order->user->email ?? 'N/A',
+                'total_amount' => $order->total_amount,
+                'payment_status' => $order->payment_status ? 'Paid' : 'Pending',
+                'delivery_date' => $order->updated_at->format('M d, Y'),
+                'delivery_time' => $order->updated_at->format('H:i A'),
+                'items_count' => $order->items->count(),
+                'shipping_address' => $order->shipping_address,
+                'notes' => $order->notes ?? 'No notes',
+                'brand_info' => $order->brand ? $order->brand->brand_name . ($order->brand->model ? ' ('.$order->brand->model.')' : '') : 'N/A',
+                'items_details' => $order->items->map(function($item) {
+                    return $item->part->name . ' (Qty: ' . $item->quantity . ', Price: $' . number_format($item->unit_price, 2) . ')';
+                })->join(', '),
+                'categories' => $order->items->map(function($item) {
+                    return $item->part->category->name ?? 'N/A';
+                })->unique()->join(', ')
+            ];
+        });
 
-        return view('admin.orders.show', compact('order', 'showPdfButton'));
+        // Generate PDF
+        $pdf = \PDF::loadView('admin.orders.all_delivered_pdf', compact('ordersData'))
+            ->setPaper('a4', 'landscape');
+
+        // Download with filename
+        $filename = 'all_delivered_orders_' . now()->format('Y_m_d_H_i') . '.pdf';
+        return $pdf->download($filename);
     }
-
-
-public function downloadAllDeliveredOrders()
-{
-    // Get all delivered orders with all related data
-    $orders = Order::with(['user', 'items.part.category'])
-        ->where('status', 'delivered')
-        ->orderBy('updated_at', 'desc')
-        ->get();
-
-    // Transform data for better PDF display
-    $ordersData = $orders->map(function($order) {
-        return [
-            'id' => $order->id,
-            'customer_name' => $order->user->name,
-            'customer_email' => $order->user->email ?? 'N/A',
-            'total_amount' => $order->total_amount,
-            'payment_status' => $order->payment_status ? 'Paid' : 'Pending',
-            'delivery_date' => $order->updated_at->format('M d, Y'),
-            'delivery_time' => $order->updated_at->format('H:i A'),
-            'items_count' => $order->items->count(),
-            'shipping_address' => $order->shipping_address,
-            'notes' => $order->notes ?? 'No notes',
-            'items_details' => $order->items->map(function($item) {
-                return $item->part->name . ' (Qty: ' . $item->quantity . ', Price: $' . number_format($item->unit_price, 2) . ')';
-            })->join(', '),
-            'categories' => $order->items->map(function($item) {
-                return $item->part->category->name ?? 'N/A';
-            })->unique()->join(', ')
-        ];
-    });
-
-    // Generate PDF
-    $pdf = \PDF::loadView('admin.orders.all_delivered_pdf', compact('ordersData'))
-        ->setPaper('a4', 'landscape'); // Landscape for better table display
-
-    // Download with filename
-    $filename = 'all_delivered_orders_' . now()->format('Y_m_d_H_i') . '.pdf';
-    return $pdf->download($filename);
-}
-
-
 }

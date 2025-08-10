@@ -8,6 +8,7 @@ class Order extends Model
 {
     protected $fillable = [
         'user_id',
+        'brand_id',
         'total_amount',
         'status',
         'payment_status',
@@ -25,5 +26,10 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function brand()
+    {
+       return $this->belongsTo(Bike::class, 'brand_id');
     }
 }

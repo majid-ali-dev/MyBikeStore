@@ -4,11 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>MyBikeStore</title>
+    <title>MyBikeStore - Login</title>
     <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- SweetAlert2 CSS -->
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
@@ -181,16 +180,17 @@
             cursor: pointer;
         }
     </style>
-
 </head>
 
 <body>
     <div class="container">
         <div class="card">
-            {{-- <img src="{{ asset('images/istockphot204.jpg') }}" alt="Logo"> --}}
-            <span style="color:#db4a39"><h1><i class="fas fa-motorcycle me-2"></i></h1></span>
+            <span style="color:#db4a39">
+                <h1><i class="fas fa-motorcycle me-2"></i></h1>
+            </span>
             <h4>MyBikeStore</h4>
             <p>Please login to your account</p>
+
             <form action="{{ route('loginMatch') }}" method="POST">
                 @csrf
                 <div class="mb-3">
@@ -210,13 +210,47 @@
                 <i class="fa-brands fa-google"></i> Login with Google
             </a>
 
-
             <div class="card-footer">
-            <small class="acc">Don't have an account? <a href="{{ route('register') }}">Register here</a></small>
+                <small class="acc">Don't have an account?
+                    <a href="{{ route('register') }}">Register here</a>
+                </small>
             </div>
         </div>
     </div>
 
+    <!-- SweetAlert for Validation & Error Messages -->
+    @if ($errors->any())
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Failed',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+                confirmButtonColor: '#dc3545'
+            });
+        </script>
+    @endif
+
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#dc3545'
+            });
+        </script>
+    @endif
+
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '{{ session('success') }}',
+                confirmButtonColor: '#28a745'
+            });
+        </script>
+    @endif
 </body>
 
 </html>

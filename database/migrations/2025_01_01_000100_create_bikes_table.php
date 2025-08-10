@@ -9,13 +9,12 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up(): void
+    public function up(): void
 {
-    Schema::create('part_categories', function (Blueprint $table) {
+    Schema::create('bikes', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('bike_id')->constrained('bikes')->onDelete('cascade'); // New
-        $table->string('name');
-        $table->text('description')->nullable();
+        $table->string('brand_name'); // e.g., Honda, Unique
+        $table->string('model');      // e.g., CD 70, CG 125
         $table->timestamps();
     });
 }
@@ -25,8 +24,9 @@ public function up(): void
      * Reverse the migrations.
      */
     public function down(): void
-{
-    Schema::dropIfExists('part_categories');
-}
-
+    {
+        Schema::dropIfExists('bikes');
+    }
 };
+
+
