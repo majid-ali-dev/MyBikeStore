@@ -21,17 +21,22 @@ class LoginController extends Controller
     {
         $googleUser = Socialite::driver('google')->stateless()->user();
 
-            $user = User::updateOrCreate(
-                ['email' => $googleUser->getEmail()],
-                [
-                    'name' => $googleUser->getName(),
-                    'google_id' => $googleUser->getId(),
-                ]
-            );
+        $user = User::updateOrCreate(
+            ['email' => $googleUser->getEmail()],
+            [
+                'name' => $googleUser->getName(),
+                'google_id' => $googleUser->getId(),
+            ]
+        );
 
-            Auth::login($user);
+        Auth::login($user);
 
-            return redirect('/dashboard'); // ya aapki desired route
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        } else {
+            return redirect()->route('customer.dashboard'); // customer ka route
+        }
     }
+
 
 }

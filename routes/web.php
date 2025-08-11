@@ -16,13 +16,11 @@ use Illuminate\Support\Facades\Route;
 
 // Display login form
 Route::view('login', 'login')->name('login');
-
 // Process login credentials
 Route::post('loginMatch', [UserController::class, 'login'])->name('loginMatch');
 
 // Display registration form
 Route::view('register', 'register')->name('register');
-
 // Process user registration
 Route::post('registerSave', [UserController::class, 'register'])->name('registerSave');
 
@@ -31,7 +29,6 @@ Route::match(['get', 'post'], 'logout', [UserController::class, 'logout'])->name
 
 // Login with Google - redirect to Google OAuth
 Route::get('/auth/redirect', [LoginController::class, 'redirectToGoogle'])->name('google.login');
-
 // Handle Google OAuth callback
 Route::get('/auth/callback', [LoginController::class, 'handleGoogleCallback']);
 
