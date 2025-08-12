@@ -79,6 +79,9 @@ Route::middleware(['auth', 'admin:admin'])->prefix('admin')->group(function () {
 
     // Download all delivered orders as PDF
     Route::get('/orders/download-all-delivered', [AdminController::class, 'downloadAllDeliveredOrders'])->name('admin.orders.download_all_delivered');
+
+    // Live Chat - Add after order management routes
+    Route::get('/live-chat', [AdminController::class, 'liveChat'])->name('admin.live-chat');
 });
 
 /*
@@ -120,6 +123,10 @@ Route::middleware(['auth', 'customer:customer'])->prefix('customer')->group(func
 
     // About Us - comprehensive information about MyBikeStore and services
     Route::get('/about-us', [CustomerController::class, 'aboutMyBikeShop'])->name('customer.about_us');
+
+
+    // Live Chat - Add after payment routes
+    Route::get('/live-chat', [CustomerController::class, 'liveChat'])->name('customer.live-chat');
 
 });
 

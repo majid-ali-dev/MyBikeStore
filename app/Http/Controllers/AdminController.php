@@ -35,6 +35,7 @@ class AdminController extends Controller
         $totalBikes = Bike::count();
         $totalCategories = PartCategory::count();
         $totalParts = Part::count();
+        
 
         // Fetch only customers
         $customers = User::where('role', 'customer')->latest()->paginate(10);
@@ -44,7 +45,8 @@ class AdminController extends Controller
             'totalBikes',
             'totalCategories',
             'totalParts',
-            'customers'
+            'customers',
+
         ));
     }
 
@@ -276,7 +278,7 @@ class AdminController extends Controller
 
             return redirect()->route('admin.categories.list')
             ->with('success', "Category '{$categoryName}' has been deleted successfully!");
-    
+
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to delete category: ' . $e->getMessage());
         }
@@ -607,5 +609,18 @@ class AdminController extends Controller
         // Download with filename
         $filename = 'all_delivered_orders_' . now()->format('Y_m_d_H_i') . '.pdf';
         return $pdf->download($filename);
+    }
+
+
+
+    /**
+    * Display Admin Live Chat Interface
+    * Shows all active customer conversations
+    *
+    * @return \Illuminate\View\View
+    */
+    public function liveChat()
+    {
+        return view('admin.live-chat.index');
     }
 }

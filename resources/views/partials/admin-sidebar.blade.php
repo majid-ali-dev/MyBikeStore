@@ -70,6 +70,14 @@
                     <span>Customers</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.live-chat') }}"
+                    class="nav-link {{ request()->routeIs('admin.live-chat') ? 'active' : '' }}">
+                    <i class="fas fa-headset"></i>
+                    <span>Live Support</span>
+                    <span class="badge bg-danger float-end">New</span>
+                </a>
+            </li>
         </ul>
     </div>
 
@@ -82,7 +90,7 @@
                 </div>
                 <div class="profile-info">
                     <h6>{{ Auth::user()->name ?? 'Admin' }}</h6>
-                    <span>{{ Auth::user()->email ?? 'admin@example.com' }}</span>
+                    {{-- <span>{{ Auth::user()->email ?? 'admin@example.com' }}</span> --}}
                 </div>
                 <i class="fas fa-chevron-up ms-auto"></i>
             </button>

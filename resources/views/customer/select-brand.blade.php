@@ -43,18 +43,4 @@
     </div>
 @endsection
 
-@push('scripts')
-    <script>
-        // Sidebar toggle functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.querySelector('.sidebar'); // Adjust selector as needed
 
-            if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('show');
-                });
-            }
-        });
-    </script>
-@endpush

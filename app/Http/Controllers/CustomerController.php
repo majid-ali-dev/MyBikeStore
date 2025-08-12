@@ -99,7 +99,8 @@ class CustomerController extends Controller
             'selected_parts' => 'required|array',
             'selected_parts.*' => 'exists:parts,id',
             'shipping_address' => 'required|string',
-            'notes' => 'nullable|string'
+            'notes' => 'nullable|string',
+            'color' => 'required|string'
         ]);
 
         try {
@@ -148,7 +149,8 @@ class CustomerController extends Controller
                 'payment_status' => false,
                 'advance_payment' => $advancePayment,
                 'shipping_address' => $request->shipping_address,
-                'notes' => $request->notes
+                'notes' => $request->notes,
+                'color' => $request->color,
             ]);
 
             foreach ($selectedParts as $part) {
@@ -267,5 +269,17 @@ class CustomerController extends Controller
             'totalParts',
             'totalCustomers'
         ));
+    }
+
+
+    /**
+    * Display Customer Live Chat Interface
+    * Shows conversation with admin support
+    *
+    * @return \Illuminate\View\View
+    */
+    public function liveChat()
+    {
+        return view('customer.live-chat.index');
     }
 }

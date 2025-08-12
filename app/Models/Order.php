@@ -15,6 +15,7 @@ class Order extends Model
         'advance_payment',
         'shipping_address',
         'notes',
+        'color',
         'expected_completion_date',
     ];
 

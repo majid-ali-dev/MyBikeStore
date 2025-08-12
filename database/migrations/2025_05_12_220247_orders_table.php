@@ -22,6 +22,8 @@ return new class extends Migration
        $table->decimal('advance_payment', 10, 2)->default(0);
        $table->text('shipping_address')->nullable();
        $table->text('notes')->nullable();
+       $table->string('color');      // e.g., red, blue, black
+
        $table->timestamps();
      });
     }

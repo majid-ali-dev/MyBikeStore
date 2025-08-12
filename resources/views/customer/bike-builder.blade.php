@@ -119,14 +119,24 @@
                                             @csrf
                                             <div id="selected-parts-inputs-container"></div>
 
-                                            <div class="mb-3">
+                                            <div class="mb-2">
                                                 <label for="shipping_address" class="form-label">Shipping Address</label>
                                                 <textarea class="form-control" name="shipping_address" rows="3" required></textarea>
                                             </div>
 
-                                            <div class="mb-3">
+                                            <div class="mb-2">
                                                 <label for="notes" class="form-label">Special Instructions</label>
                                                 <textarea class="form-control" name="notes" rows="2"></textarea>
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label class="form-label">Color</label>
+                                                <select name="color" class="form-control" required>
+                                                    <option value="">-- Select Color --</option>
+                                                    <option value="red" style="color:red;">Red</option>
+                                                    <option value="blue" style="color:blue;">Blue</option>
+                                                    <option value="black" style="color:black;">Black</option>
+                                                </select>
                                             </div>
 
                                             <button type="submit" class="btn btn-primary w-100" id="submit-order-btn"

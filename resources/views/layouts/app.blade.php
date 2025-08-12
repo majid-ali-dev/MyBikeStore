@@ -78,7 +78,7 @@
         }
 
         .sidebar-menu {
-            padding: 1.5rem 0;
+            padding: 1.0rem 0;
             flex: 1;
         }
 
@@ -118,9 +118,12 @@
         }
 
         .sidebar-footer {
-            padding: 1.5rem;
+            padding: 0.75rem 1rem;
+            /* Reduced from 1.5rem */
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(0, 0, 0, 0.1);
+            margin-top: 0;
+            /* Ensure no extra margin */
         }
 
         .main-content {
@@ -278,6 +281,7 @@
             }
         }
     </style>
+
     @stack('styles')
 </head>
 
