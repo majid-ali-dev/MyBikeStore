@@ -74,8 +74,10 @@
                                 <h6 class="text-primary">Shipping Information</h6>
                                 <div class="card border-0 shadow-none mb-2">
                                     <div class="card-body p-2">
-                                        <p class="mb-2"><strong>Address:</strong> {{ $order->shipping_address }}</p>
-                                        <p class="mb-0"><strong>Notes:</strong> {{ $order->notes ?? 'None' }}</p>
+                                        <p class="mb-2"><strong>Address:</strong>
+                                            {{ $order->shipping_address ?? 'Not provided' }}</p>
+                                        <p class="mb-2"><strong>Notes:</strong> {{ $order->notes ?? 'None' }}</p>
+
                                         @php
                                             // Get unique brand names from all parts in the order
                                             $brands = $order->items
@@ -85,12 +87,32 @@
                                                 ->filter()
                                                 ->unique()
                                                 ->implode(', ');
+
+                                            // Get colors from multiple sources
+                                            $colors = collect();
+
+                                            // Add order-level color if exists
+                                            if (!empty($order->color)) {
+                                                $colors->push($order->color);
+                                            }
+
+                                            // Add item-level colors if they exist
+                                            $itemColors = $order->items
+                                                ->map(function ($item) {
+                                                    return $item->color ?? null;
+                                                })
+                                                ->filter()
+                                                ->unique();
+
+                                            $colors = $colors->merge($itemColors)->unique()->implode(', ');
                                         @endphp
 
-                                        <p class="mb-0"><strong>Brand:</strong> {{ $brands ?: 'Not specified' }}</p>
+                                        <p class="mb-2"><strong>Brand:</strong> {{ $brands ?: 'Not specified' }}</p>
+                                        <p class="mb-0"><strong>Color:</strong> {{ $colors ?: 'Not specified' }}</p>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
 
                         <!-- Order Items -->

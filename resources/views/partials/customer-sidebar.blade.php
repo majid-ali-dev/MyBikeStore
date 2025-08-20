@@ -172,7 +172,10 @@
                                     Account Information
                                 </h6>
                             </div>
+
                             <div class="card-body">
+
+                                {{-- Member Since --}}
                                 <div class="detail-item mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span class="detail-label text-muted">
@@ -184,16 +187,18 @@
                                     </div>
                                 </div>
 
+                                {{-- Current Login --}}
                                 <div class="detail-item mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span class="detail-label text-muted">
-                                            <i class="fas fa-clock me-2"></i>Last Login
+                                            <i class="fas fa-clock me-2"></i>Current Login
                                         </span>
                                         <span class="detail-value fw-bold">
-                                            {{ Auth::user()->updated_at->format('M d, Y') }}
+                                            {{ now()->format('M d, Y') }}
                                         </span>
                                     </div>
                                 </div>
+
 
                                 <div class="detail-item mb-0">
                                     <div class="d-flex justify-content-between align-items-center">

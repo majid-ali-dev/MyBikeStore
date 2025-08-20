@@ -212,6 +212,7 @@ class CustomerController extends Controller
      * @param \App\Models\Order $order
      * @return \Illuminate\View\View
      */
+
     public function showOrder(Order $order)
     {
         // Verify the order belongs to the authenticated user

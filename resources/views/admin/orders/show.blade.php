@@ -137,8 +137,6 @@
                                                 data-bs-target="#content-{{ Str::slug($category) }}" type="button"
                                                 role="tab" aria-controls="content-{{ Str::slug($category) }}"
                                                 aria-selected="{{ $loop->first ? 'true' : 'false' }}">
-                                                <i
-                                                    class="fas fa-{{ $category == 'Engine' ? 'cogs' : ($category == 'Tair' ? 'tire' : 'cog') }} me-1"></i>
                                                 {{ $category }}
                                             </button>
                                         </li>
@@ -154,8 +152,6 @@
 
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <h4 class="h5 text-primary mb-0">
-                                                    <i
-                                                        class="fas fa-{{ $category == 'Engine' ? 'cogs' : ($category == 'Tair' ? 'tire' : 'cog') }} me-1"></i>
                                                     {{ $category }}
                                                 </h4>
                                                 <small class="text-muted">
@@ -209,6 +205,7 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
                     <!-- Card Footer with Actions -->
@@ -270,6 +267,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
