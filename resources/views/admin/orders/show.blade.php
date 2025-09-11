@@ -114,13 +114,14 @@
                             <div class="card-header bg-light">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h3 class="h6 mb-0">Order Components</h3>
-                                    @if ($order->brand)
+                                    @if   ($order->brand)
                                         <div>
                                             <span class="badge bg-primary me-2">
                                                 <i class="fas fa-motorcycle me-1"></i>
                                                 {{ $order->brand->brand_name }}
                                                 @if ($order->brand->model)
                                                     ({{ $order->brand->model }})
+                                                    - {{ $order->color }}
                                                 @endif
                                             </span>
                                         </div>

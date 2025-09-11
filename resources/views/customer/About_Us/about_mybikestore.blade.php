@@ -459,6 +459,13 @@
                                     <i class="fas fa-rocket me-2"></i>
                                     Start Building Your Dream Bike
                                 </a>
+                                <br>
+                                {{-- <a href="{{ url('/customer/contact-us') }}" class="btn btn-warning mt-3">
+                                    <b>
+                                        <i class="fas fa-envelope me-1"></i>
+                                        Contact Us
+                                    </b>
+                                </a> --}}
                             </div>
                         </div>
                     </div>

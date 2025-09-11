@@ -86,14 +86,11 @@ class CustomerController extends Controller
         ]);
     }
 
+
     /**
-     * Process and submit a custom bike order with transaction safety.
-     * Validates parts selection, calculates pricing, creates order and items.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function submitBikeOrder(Request $request)
+    * Show bike preview with selected parts before final confirmation
+    */
+    public function bikePreview(Request $request)
     {
         $request->validate([
             'selected_parts' => 'required|array',
@@ -103,84 +100,124 @@ class CustomerController extends Controller
             'color' => 'required|string'
         ]);
 
-        try {
-            DB::beginTransaction();
+        // Get brand ID from session
+        $brandId = session('selected_brand_id');
+        if (!$brandId) {
+            return redirect()->route('customer.bike-builder')->with('error', 'Please select a brand first.');
+        }
 
-            // Get the brand ID from session
-            $brandId = session('selected_brand_id');
-            if (!$brandId) {
-                throw new \Exception("No bike brand selected. Please select a brand first.");
-            }
+        // Get selected brand
+        $selectedBrand = Bike::find($brandId);
 
-            // Get categories for the selected brand that have parts in stock
-            $availableCategories = PartCategory::with(['parts' => function ($query) {
-                    $query->where('stock', '>', 0);
-                }])
-                ->where('bike_id', $brandId)
-                ->get()
-                ->filter(function ($category) {
-                    return $category->parts->count() > 0;
-                });
+        // Get selected parts with their categories
+        $selectedParts = Part::whereIn('id', $request->selected_parts)
+            ->with('category')
+            ->get();
 
-            // Get selected parts with their categories
-            $selectedParts = Part::whereIn('id', $request->selected_parts)
-                ->with('category')
-                ->get();
+        // Calculate totals
+        $totalAmount = $selectedParts->sum('price');
+        $advancePayment = $totalAmount * 0.4;
 
-            // Check if all categories for this brand are covered
-            $selectedCategoryIds = $selectedParts->pluck('category_id')->unique();
-            $availableCategoryIds = $availableCategories->pluck('id');
-
-            $missingCategories = $availableCategories->whereNotIn('id', $selectedCategoryIds);
-
-            if ($missingCategories->count() > 0) {
-                $missingCategoryNames = $missingCategories->pluck('name')->implode(', ');
-                throw new \Exception("Please select at least one part from the following categories: {$missingCategoryNames}");
-            }
-
-            $totalAmount = $selectedParts->sum('price');
-            $advancePayment = $totalAmount * 0.4;
-
-            $order = Order::create([
-                'user_id' => Auth::id(),
-                'brand_id' => $brandId,
-                'total_amount' => $totalAmount,
-                'status' => 'pending',
-                'payment_status' => false,
-                'advance_payment' => $advancePayment,
+        // Store form data in session for later use
+        session([
+            'preview_data' => [
+                'selected_parts' => $request->selected_parts,
                 'shipping_address' => $request->shipping_address,
                 'notes' => $request->notes,
                 'color' => $request->color,
+                'total_amount' => $totalAmount,
+                'advance_payment' => $advancePayment
+            ]
+        ]);
+
+        return view('customer.bike-preview', compact(
+            'selectedBrand',
+            'selectedParts',
+            'totalAmount',
+            'advancePayment',
+            'request'
+        ));
+    }
+
+    /**
+     * Process and submit a custom bike order with transaction safety.
+     * Validates parts selection, calculates pricing, creates order and items.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+     /**
+     * Process and submit a custom bike order with transaction safety.
+     * Now uses data from session (from preview page)
+     */
+    public function submitBikeOrder(Request $request)
+    {
+     try {
+        // Get preview data from session
+        $previewData = session('preview_data');
+        if (!$previewData) {
+            return redirect()->route('customer.bike-builder')
+                ->with('error', 'Session expired. Please configure your bike again.');
+        }
+
+        DB::beginTransaction();
+
+        // Get the brand ID from session
+        $brandId = session('selected_brand_id');
+        if (!$brandId) {
+            throw new \Exception("No bike brand selected. Please select a brand first.");
+        }
+
+        // Get selected parts
+        $selectedParts = Part::whereIn('id', $previewData['selected_parts'])
+            ->with('category')
+            ->get();
+
+        // Validate stock
+        foreach ($selectedParts as $part) {
+            if ($part->stock <= 0) {
+                throw new \Exception("Part '{$part->name}' is out of stock.");
+            }
+        }
+
+        $order = Order::create([
+            'user_id' => Auth::id(),
+            'brand_id' => $brandId,
+            'total_amount' => $previewData['total_amount'],
+            'status' => 'pending',
+            'payment_status' => false,
+            'advance_payment' => $previewData['advance_payment'],
+            'shipping_address' => $previewData['shipping_address'],
+            'notes' => $previewData['notes'],
+            'color' => $previewData['color'],
+        ]);
+
+        foreach ($selectedParts as $part) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'part_id' => $part->id,
+                'quantity' => 1,
+                'unit_price' => $part->price,
+                'part_image_path' => $part->image
             ]);
 
-            foreach ($selectedParts as $part) {
-                if ($part->stock <= 0) {
-                    throw new \Exception("Part '{$part->name}' is out of stock.");
-                }
-
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'part_id' => $part->id,
-                    'quantity' => 1,
-                    'unit_price' => $part->price,
-                    'part_image_path' => $part->image
-                ]);
-
-                $part->decrement('stock');
-            }
-
-            DB::commit();
-
-            // Clear the selected brand from session
-            $request->session()->forget('selected_brand_id');
-
-            return redirect()->route('customer.payment', $order);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Error: '.$e->getMessage());
+            $part->decrement('stock');
         }
+
+        DB::commit();
+
+        // Clear sessions
+        // $request->session()->forget(['selected_brand_id', 'preview_data']);
+
+        return redirect()->route('customer.payment', $order)
+            ->with('success', 'Order confirmed! Proceed with payment.');
+
+     } catch (\Exception $e) {
+         DB::rollBack();
+         return back()->with('error', 'Error: '.$e->getMessage());
+     }
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -271,7 +308,6 @@ class CustomerController extends Controller
             'totalCustomers'
         ));
     }
-
 
     /**
     * Display Customer Live Chat Interface

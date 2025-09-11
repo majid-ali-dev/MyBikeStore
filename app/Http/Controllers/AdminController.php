@@ -35,7 +35,7 @@ class AdminController extends Controller
         $totalBikes = Bike::count();
         $totalCategories = PartCategory::count();
         $totalParts = Part::count();
-        
+
 
         // Fetch only customers
         $customers = User::where('role', 'customer')->latest()->paginate(10);

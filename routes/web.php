@@ -99,6 +99,9 @@ Route::middleware(['auth', 'customer:customer'])->prefix('customer')->group(func
     // Bike builder - custom bike configuration interface
     Route::get('/bike-builder', [CustomerController::class, 'bikeBuilder'])->name('customer.bike-builder');
 
+    // Bike preview page before confirmation
+    Route::post('/bike-preview', [CustomerController::class, 'bikePreview'])->name('customer.bike-preview');
+
     // Submit custom bike order
     Route::post('/submit-bike-order', [CustomerController::class, 'submitBikeOrder'])->name('customer.submit-bike-order');
 
@@ -123,7 +126,6 @@ Route::middleware(['auth', 'customer:customer'])->prefix('customer')->group(func
 
     // About Us - comprehensive information about MyBikeStore and services
     Route::get('/about-us', [CustomerController::class, 'aboutMyBikeShop'])->name('customer.about_us');
-
 
     // Live Chat - Add after payment routes
     Route::get('/live-chat', [CustomerController::class, 'liveChat'])->name('customer.live-chat');

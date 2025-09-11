@@ -7,10 +7,6 @@
 
             <!-- Main Content -->
             <div class="main-content">
-                <!-- Mobile Toggle Button -->
-                <button class="btn btn-dark d-md-none mb-3" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
 
                 <!-- Brand Selection Card -->
                 <div class="card shadow">

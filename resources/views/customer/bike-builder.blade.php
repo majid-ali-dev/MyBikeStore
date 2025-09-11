@@ -7,10 +7,6 @@
 
             <!-- Main Content -->
             <div class="main-content">
-                <!-- Mobile Toggle Button -->
-                <button class="btn btn-dark d-md-none mb-3" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
 
                 <!-- Brand Selection Info  -->
                 <div class="alert alert-info mb-4">
@@ -114,7 +110,9 @@
                                         </div>
                                     </div>
                                     <div class="card-footer">
-                                        <form id="bike-order-form" action="{{ route('customer.submit-bike-order') }}"
+                                        {{-- <form id="bike-order-form" action="{{ route('customer.submit-bike-order') }}"
+                                            method="POST"> --}}
+                                        <form id="bike-order-form" action="{{ route('customer.bike-preview') }}"
                                             method="POST">
                                             @csrf
                                             <div id="selected-parts-inputs-container"></div>
@@ -334,7 +332,7 @@
                 }
             });
 
-            // Form submission handling
+            // Form submission handling section mein ye change karo:
             $('#bike-order-form').on('submit', function(e) {
                 e.preventDefault();
 
@@ -359,7 +357,8 @@
                     return false;
                 }
 
-                showConfirmationModal();
+                // Direct submit to preview page instead of showing modal
+                this.submit();
             });
 
             function showConfirmationModal() {
