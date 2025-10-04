@@ -3,17 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bike;
-use App\Models\Order;
 use App\Models\Part;
 use App\Models\User;
+use App\Models\Order;
+use Barryvdh\DomPDF\PDF;
 use App\Models\PartCategory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
-use App\Mail\OrderCompletedMail;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use App\Mail\OrderCompletedMail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -612,15 +614,4 @@ class AdminController extends Controller
     }
 
 
-
-    /**
-    * Display Admin Live Chat Interface
-    * Shows all active customer conversations
-    *
-    * @return \Illuminate\View\View
-    */
-    public function liveChat()
-    {
-        return view('admin.live-chat.index');
-    }
 }
