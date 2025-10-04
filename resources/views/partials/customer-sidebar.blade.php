@@ -51,7 +51,6 @@
                 <a class="nav-link" href="{{ route('customer.live-chat') }}">
                     <i class="fas fa-comment-medical me-2"></i>
                     <span>Chat</span>
-                    <span class="badge bg-danger float-end">New</span>
                 </a>
             </li>
             <li class="nav-item">

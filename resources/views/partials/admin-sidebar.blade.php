@@ -75,7 +75,7 @@
                     class="nav-link {{ request()->routeIs('admin.live-chat') ? 'active' : '' }}">
                     <i class="fas fa-headset"></i>
                     <span>Live Support</span>
-                    <span class="badge bg-danger float-end">New</span>
+                    {{-- <span class="badge bg-danger float-end">New</span> --}}
                 </a>
             </li>
         </ul>

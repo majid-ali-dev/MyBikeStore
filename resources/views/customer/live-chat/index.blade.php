@@ -23,8 +23,8 @@
                                         Support Live Chat
                                     </h3>
                                     <div>
-                                        <span class="badge bg-light text-success me-2" id="unreadCount">0 Unread</span>
-                                        <span class="badge bg-warning" id="connectionStatus">Connected</span>
+                                        <!-- Status badges removed -->
+                                        <span class="badge bg-light text-success">Live Support</span>
                                     </div>
                                 </div>
 
@@ -110,6 +110,14 @@
             margin: 10px 0;
         }
 
+        .new-message-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            animation: slideIn 0.5s;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -122,50 +130,13 @@
             }
         }
 
-        .typing-indicator {
-            padding: 10px 16px;
-            background: white;
-            border-radius: 18px;
-            display: inline-block;
-            border: 1px solid #dee2e6;
-        }
-
-        .typing-dots {
-            display: inline-block;
-        }
-
-        .typing-dots span {
-            height: 8px;
-            width: 8px;
-            background: #6c757d;
-            border-radius: 50%;
-            display: inline-block;
-            margin: 0 1px;
-            animation: typing 1.4s infinite ease-in-out;
-        }
-
-        .typing-dots span:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .typing-dots span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dots span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-
-            0%,
-            60%,
-            100% {
-                transform: translateY(0);
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
             }
 
-            30% {
-                transform: translateY(-5px);
+            to {
+                transform: translateX(0);
             }
         }
     </style>
@@ -178,7 +149,8 @@
             // Pusher configuration
             const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
                 cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
-                encrypted: true
+                encrypted: true,
+                authEndpoint: '/broadcasting/auth'
             });
 
             // Load messages
@@ -188,11 +160,11 @@
 
                     if (messages.length === 0) {
                         $('#messagesArea').html(`
-                    <div class="text-center text-muted py-4">
-                        <i class="fas fa-robot fa-2x mb-3 text-success"></i>
-                        <p>Welcome to MyBikeStore Support! How can we help you today?</p>
-                    </div>
-                `);
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-robot fa-2x mb-3 text-success"></i>
+                                <p>Welcome to MyBikeStore Support! How can we help you today?</p>
+                            </div>
+                        `);
                         return;
                     }
 
@@ -201,7 +173,13 @@
                     });
 
                     scrollToBottom();
-                    updateUnreadCount();
+                }).fail(function() {
+                    $('#messagesArea').html(`
+                        <div class="text-center text-danger py-4">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                            <p>Failed to load messages. Please refresh the page.</p>
+                        </div>
+                    `);
                 });
             }
 
@@ -213,17 +191,22 @@
                     hour: '2-digit',
                     minute: '2-digit'
                 });
-                const senderName = isCustomer ? 'You' : message.sender.name;
+                const senderName = isCustomer ? 'You' : (message.sender ? message.sender.name : 'Support');
+
+                // Safely get message text
+                const messageText = typeof message.message === 'string' ? message.message :
+                    (message.message && typeof message.message === 'object' ?
+                        (message.message.message || 'Invalid message') : 'Invalid message');
 
                 $('#messagesArea').append(`
-            <div class="chat-message d-flex ${isCustomer ? 'justify-content-end' : 'justify-content-start'}">
-                <div class="message-bubble ${messageClass}">
-                    ${!isCustomer ? `<div class="message-sender text-primary">${senderName}</div>` : ''}
-                    <div class="message-text">${message.message}</div>
-                    <div class="message-time ${isCustomer ? 'text-end' : ''}">${time}</div>
-                </div>
-            </div>
-        `);
+                    <div class="chat-message d-flex ${isCustomer ? 'justify-content-end' : 'justify-content-start'}">
+                        <div class="message-bubble ${messageClass}">
+                            ${!isCustomer ? `<div class="message-sender text-primary">${senderName}</div>` : ''}
+                            <div class="message-text">${messageText}</div>
+                            <div class="message-time ${isCustomer ? 'text-end' : ''}">${time}</div>
+                        </div>
+                    </div>
+                `);
             }
 
             // Send message
@@ -256,26 +239,12 @@
                 }).fail(function() {
                     // Show error message
                     $('#messagesArea').append(`
-                <div class="system-message">
-                    <i class="fas fa-exclamation-triangle me-1"></i>
-                    Failed to send message. Please try again.
-                </div>
-            `);
+                        <div class="system-message text-danger">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            Failed to send message. Please try again.
+                        </div>
+                    `);
                     scrollToBottom();
-                });
-            }
-
-            // Update unread count
-            function updateUnreadCount() {
-                $.get('{{ route('customer.chat.unread-count') }}', function(data) {
-                    $('#unreadCount').text(data.count + ' Unread');
-                    if (data.count > 0) {
-                        $('#unreadCount').removeClass('bg-light text-success').addClass(
-                            'bg-danger text-white');
-                    } else {
-                        $('#unreadCount').removeClass('bg-danger text-white').addClass(
-                            'bg-light text-success');
-                    }
                 });
             }
 
@@ -297,20 +266,43 @@
             // Pusher channel for receiving messages
             const channel = pusher.subscribe('private-chat.{{ auth()->id() }}');
             channel.bind('new-chat-message', function(data) {
-                appendMessage(data.chatMessage);
-                scrollToBottom();
-                updateUnreadCount();
+                const message = data.chatMessage;
+
+                // Only append if message is from admin
+                if (message.sender_id !== {{ auth()->id() }}) {
+                    appendMessage(message);
+                    scrollToBottom();
+
+                    // Show visual alert for new message
+                    showMessageAlert();
+                }
             });
+
+            // Show message alert
+            function showMessageAlert() {
+                $('.new-message-alert').remove();
+                $('body').append(`
+                    <div class="alert alert-success new-message-alert">
+                        <i class="fas fa-comment-dots me-2"></i>
+                        New message from support!
+                    </div>
+                `);
+
+                setTimeout(() => {
+                    $('.new-message-alert').fadeOut();
+                }, 3000);
+            }
+
+            // Request notification permission
+            if ("Notification" in window && Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+
+            // Auto-refresh messages every 30 seconds (fallback)
+            setInterval(loadMessages, 30000);
 
             // Initial load
             loadMessages();
-            updateUnreadCount();
-
-            // Update connection status
-            pusher.connection.bind('state_change', function(states) {
-                const status = states.current === 'connected' ? 'Connected' : 'Connecting...';
-                $('#connectionStatus').text(status);
-            });
         });
     </script>
 @endsection
