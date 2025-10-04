@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
+use Laravel\Sanctum\HasApiTokens;
+use App\Models\ChatMessage;
 
 class User extends Authenticatable
 {
@@ -81,4 +83,23 @@ class User extends Authenticatable
     {
         return $this->orders()->where('status', 'pending');
     }
+
+
+    /**
+     * Get all messages sent by this user
+     */
+    public function sentMessages()
+    {
+        return $this->hasMany(ChatMessage::class, 'sender_id');
+    }
+
+    /**
+     * Get all messages received by this user
+     */
+    public function receivedMessages()
+    {
+        return $this->hasMany(ChatMessage::class, 'receiver_id');
+    }
+
+
 }

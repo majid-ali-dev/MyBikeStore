@@ -84,6 +84,9 @@ Route::middleware(['auth', 'admin:admin'])->prefix('admin')->group(function () {
 
     // Live Chat - Add after order management routes
     Route::get('/live-chat', [ChatAdminController::class, 'liveChat'])->name('admin.live-chat');
+    Route::get('/chat/messages/{customerId}', [ChatAdminController::class, 'getMessages'])->name('admin.chat.messages');
+    Route::post('/chat/send', [ChatAdminController::class, 'sendMessage'])->name('admin.chat.send');
+    Route::get('/chat/customers', [ChatAdminController::class, 'getCustomers'])->name('admin.chat.customers');
 });
 
 /*
@@ -131,7 +134,9 @@ Route::middleware(['auth', 'customer:customer'])->prefix('customer')->group(func
 
     // Live Chat - Add after payment routes
     Route::get('/live-chat', [ChatCustomerController::class, 'liveChat'])->name('customer.live-chat');
-
+    Route::get('/chat/messages', [ChatCustomerController::class, 'getMessages'])->name('customer.chat.messages');
+    Route::post('/chat/send', [ChatCustomerController::class, 'sendMessage'])->name('customer.chat.send');
+    Route::get('/chat/unread-count', [ChatCustomerController::class, 'getUnreadCount'])->name('customer.chat.unread-count');
 });
 
 /*
